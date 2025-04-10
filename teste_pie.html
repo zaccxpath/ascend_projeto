@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Gráfico de Pizza</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="concordancia-pie" style="width:600px;height:400px;"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Valores diretos do nosso teste
+            var data = [{
+                labels: ['Concordância', 'Discordância'],
+                values: [68.25396825396825, 31.746031746031747],
+                hole: 0.4,
+                type: 'pie',
+                marker: {
+                    colors: ['#2ecc71', '#e74c3c']
+                }
+            }];
+            
+            var layout = {
+                title_text: 'Taxa de Concordância Cliente-Modelo',
+                height: 400,
+                annotations: [{
+                    text: '68.3%',
+                    x: 0.5,
+                    y: 0.5,
+                    font: {
+                        size: 20
+                    },
+                    showarrow: false
+                }]
+            };
+            
+            Plotly.newPlot('concordancia-pie', data, layout, {responsive: true});
+        });
+    </script>
+</body>
+</html> 

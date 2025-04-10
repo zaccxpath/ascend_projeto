@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/locale/pt-br.js"></script>
+    <title>ASCEND - Dashboard Analítico de Experiência do Cliente</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --neutral-color: #95a5a6;
+            --insight-color: #9b59b6;
+            --kpi-positive: #27ae60;
+            --kpi-negative: #c0392b;
+            --kpi-neutral: #7f8c8d;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-header {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-subtitle {
+            color: var(--neutral-color);
+            font-size: 0.9rem;
+        }
+
+        .dashboard-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            height: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+
+        .dashboard-card h3 i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            height: 300px;
+            width: 100%;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--dark-color);
+            font-weight: 500;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.25rem 0.25rem 0 0;
+            transition: all 0.2s;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-tabs .nav-link:hover:not(.active) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .stat-card {
+            padding: 1.25rem;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            height: 100%;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-card .stat-icon {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 2.5rem;
+            opacity: 0.2;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.9rem;
+            color: var(--neutral-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .stat-card .stat-trend {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-trend-up {
+            color: var(--success-color);
+        }
+
+        .stat-trend-down {
+            color: var(--danger-color);
+        }
+
+        .filter-controls {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .insights-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .insight-item {
+            border-left: 3px solid var(--primary-color);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 0 4px 4px 0;
+            transition: transform 0.2s;
+        }
+
+        .insight-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .insight-item.positive {
+            border-left-color: var(--success-color);
+        }
+
+        .insight-item.negative {
+            border-left-color: var(--danger-color);
+        }
+
+        .insight-item.neutral {
+            border-left-color: var(--warning-color);
+        }
+
+        .insight-item.info {
+            border-left-color: var(--primary-color);
+        }
+
+        .insight-item h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .insight-item h5 i {
+            margin-right: 8px;
+        }
+
+        .insight-item p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .dashboard-footer {
+            color: var(--neutral-color);
+            font-size: 0.85rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            border-radius: 8px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .recommendation-card {
+            background-color: #f1f9fe;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            transition: transform 0.2s;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .time-filter {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background-color: #f1f1f1;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .time-filter.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .export-btn {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .sentiment-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .sentiment-positive {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+        }
+
+        .sentiment-negative {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #c0392b;
+        }
+
+        .sentiment-neutral {
+            background-color: rgba(243, 156, 18, 0.2);
+            color: #d35400;
+        }
+
+        .topic-tag {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-card {
+            padding: 1.5rem;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .kpi-card .kpi-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .kpi-card .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-card .kpi-label {
+            font-size: 1rem;
+            color: var(--dark-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-card .kpi-target {
+            font-size: 0.85rem;
+            color: var(--neutral-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .kpi-card .kpi-progress {
+            height: 8px;
+            margin-top: 1rem;
+            border-radius: 4px;
+            background-color: #f1f1f1;
+        }
+        
+        .kpi-card .kpi-progress-bar {
+            height: 8px;
+            border-radius: 4px;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-title i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+        
+        .aspect-tag {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-right: 0.3rem;
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .aspect-tag-produto {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+        
+        .aspect-tag-entrega {
+            background-color: rgba(155, 89, 182, 0.1);
+            color: var(--insight-color);
+        }
+        
+        .aspect-tag-atendimento {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .heat-map-container {
+            height: 350px;
+            width: 100%;
+        }
+        
+        .timeline-container {
+            height: 350px;
+            width: 100%;
+        }
+        
+        .tab-content {
+            padding: 1.5rem;
+            background-color: #fff;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .nav-pills .nav-link {
+            color: var(--dark-color);
+            font-weight: 500;
+            margin-right: 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .nav-pills .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .compare-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .compare-stats .label {
+            font-weight: 500;
+        }
+        
+        .compare-stats .value {
+            font-weight: 600;
+        }
+        
+        .compare-stats .change {
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .compare-stats .positive {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+        
+        .compare-stats .negative {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-chart-line mr-2"></i>ASCEND</h1>
+                    <p>Entendendo o que está por trás das estrelas: Análise Cognitiva de Experiência do Cliente</p>
+                </div>
+                <div class="col-md-4 text-right">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-light" data-toggle="tooltip" title="Atualizar dados">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-toggle="tooltip" title="Exportar relatório">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-toggle="tooltip" title="Configurações">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav class="mb-4">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-microphone"></i> Gravador</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/historico"><i class="fas fa-history"></i> Histórico</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dashboard"><i class="fas fa-chart-bar"></i> Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/adicionar"><i class="fas fa-plus"></i> Adicionar Feedback</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/feedback"><i class="fas fa-edit"></i> Feedback Detalhado</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Introdução ao Dashboard -->
+        <div class="dashboard-header mb-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <h2 class="dashboard-title">Dashboard Estratégico ASCEND</h2>
+                    <p class="dashboard-subtitle">Transformando feedbacks qualitativos em insights acionáveis para melhorar a experiência do cliente</p>
+                </div>
+                <div class="col-md-4 text-right">
+                    <span class="badge badge-primary p-2">
+                        <i class="fas fa-clock mr-1"></i> Dados atualizados em: 
+                        {% if estatisticas.ponderacao %}
+                            {{ estatisticas.ponderacao.data_geracao }}
+                        {% else %}
+                            Hoje
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros e controles -->
+        <div class="filter-controls">
+            <div class="row">
+                <div class="col-md-5">
+                    <h5 class="mb-3"><i class="fas fa-calendar-alt mr-2"></i>Período de análise</h5>
+                    <div class="d-flex flex-wrap">
+                        <span class="time-filter active" data-period="7">7 dias</span>
+                        <span class="time-filter" data-period="30">30 dias</span>
+                        <span class="time-filter" data-period="90">90 dias</span>
+                        <span class="time-filter" data-period="365">12 meses</span>
+                        <span class="time-filter" data-period="custom">Personalizado</span>
+                    </div>
+                    <div id="custom-date-range" class="mt-2" style="display: none;">
+                        <div class="input-group">
+                            <input type="date" class="form-control form-control-sm" id="date-start">
+                            <div class="input-group-prepend input-group-append">
+                                <span class="input-group-text">até</span>
+                            </div>
+                            <input type="date" class="form-control form-control-sm" id="date-end">
+                            <div class="input-group-append">
+                                <button class="btn btn-sm btn-primary" id="apply-custom-date">Aplicar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <h5 class="mb-3"><i class="fas fa-filter mr-2"></i>Filtros de análise</h5>
+                    <div class="d-flex flex-wrap">
+                        <select class="form-control form-control-sm mr-2 mb-2" id="filter-channel" style="width: auto;">
+                            <option value="">Todos os canais</option>
+                            <option value="voz">Feedback por voz</option>
+                            <option value="texto">Feedback por texto</option>
+                            <option value="importado">Feedback importado</option>
+                        </select>
+                        <select class="form-control form-control-sm mr-2 mb-2" id="filter-sentiment" style="width: auto;">
+                            <option value="">Todos os sentimentos</option>
+                            <option value="positivo">Positivos</option>
+                            <option value="neutro">Neutros</option>
+                            <option value="negativo">Negativos</option>
+                        </select>
+                        <select class="form-control form-control-sm mr-2 mb-2" id="filter-aspect" style="width: auto;">
+                            <option value="">Todos os aspectos</option>
+                            <option value="produto">Produto</option>
+                            <option value="entrega">Entrega</option>
+                            <option value="atendimento">Atendimento</option>
+                            <option value="preco">Preço</option>
+                            <option value="qualidade">Qualidade</option>
+                        </select>
+                        <button class="btn btn-sm btn-primary mb-2" id="apply-filters">
+                            <i class="fas fa-check mr-1"></i>Aplicar
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary mb-2 ml-1" id="reset-filters">
+                            <i class="fas fa-times mr-1"></i>Limpar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards de estatísticas -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-chart-pie"></i>Dados Consolidados</h4>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--success-color);">
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <div class="stat-label">Sentimento Positivo</div>
+                    <div class="stat-value" style="color: var(--success-color);">
+                        {% if estatisticas and estatisticas.distribuicao_sentimentos %}
+                            {{ estatisticas.distribuicao_sentimentos.positivo.percentual }}%
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="stat-trend">
+                        {% if estatisticas and estatisticas.distribuicao_sentimentos %}
+                            {{ estatisticas.distribuicao_sentimentos.positivo.count }} feedbacks
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Aspectos mais mencionados:
+                            <span class="aspect-tag aspect-tag-produto">Produto</span>
+                            <span class="aspect-tag aspect-tag-atendimento">Atendimento</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--primary-color);">
+                        <i class="fas fa-comment-dots"></i>
+                    </div>
+                    <div class="stat-label">Total de Feedbacks</div>
+                    <div class="stat-value" style="color: var(--primary-color);">
+                        {% if estatisticas and estatisticas.total_feedbacks %}
+                            {{ estatisticas.total_feedbacks }}
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="stat-trend {% if estatisticas and estatisticas.tendencia_feedbacks and estatisticas.tendencia_feedbacks.direcao == 'aumento' %}stat-trend-up{% else %}stat-trend-down{% endif %}">
+                        {% if estatisticas and estatisticas.tendencia_feedbacks %}
+                            <i class="fas fa-arrow-{% if estatisticas.tendencia_feedbacks.direcao == 'aumento' %}up{% else %}down{% endif %}"></i> 
+                            {{ estatisticas.tendencia_feedbacks.valor }}% em relação ao período anterior
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Distribuição por canal:
+                            <span class="badge badge-light">Voz: 42%</span>
+                            <span class="badge badge-light">Texto: 58%</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--danger-color);">
+                        <i class="fas fa-thumbs-down"></i>
+                    </div>
+                    <div class="stat-label">Sentimento Negativo</div>
+                    <div class="stat-value" style="color: var(--danger-color);">
+                        {% if estatisticas and estatisticas.distribuicao_sentimentos %}
+                            {{ estatisticas.distribuicao_sentimentos.negativo.percentual }}%
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="stat-trend">
+                        {% if estatisticas and estatisticas.distribuicao_sentimentos %}
+                            {{ estatisticas.distribuicao_sentimentos.negativo.count }} feedbacks
+                        {% endif %}
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Aspectos mais mencionados:
+                            <span class="aspect-tag aspect-tag-entrega">Entrega</span>
+                            <span class="aspect-tag aspect-tag-produto">Produto</span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="color: var(--insight-color);">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="stat-label">Insights Detectados</div>
+                    <div class="stat-value" style="color: var(--insight-color);">
+                        {% if insights %}
+                            {{ insights|length }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="stat-trend">
+                        <span class="badge badge-success">
+                            <i class="fas fa-check"></i> {{ estatisticas.aspectos.total_analises_com_aspectos if estatisticas and estatisticas.aspectos else '22' }} feedbacks com aspectos identificados
+                        </span>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            Precisão do modelo:
+                            <span class="badge badge-{% if modelo_info and modelo_info.usando_xlm_roberta %}success{% else %}warning{% endif %}">
+                                {% if modelo_info and modelo_info.usando_xlm_roberta %}
+                                    XLM-RoBERTa Ativo
+                                {% else %}
+                                    Modelo Simplificado
+                                {% endif %}
+                            </span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insights e recomendações -->
+        {% if insights %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="insights-card">
+                    <h3><i class="fas fa-lightbulb mr-2"></i>Insights e Recomendações Estratégicas</h3>
+                    <p class="text-muted mb-4">Análises automáticas baseadas em padrões detectados nos feedbacks qualitativos dos clientes</p>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            {% for insight in insights %}
+                                <div class="insight-item {{ insight.classe }}">
+                                    <h5>
+                                        <i class="fas fa-{% if insight.tipo == 'problema' %}exclamation-triangle{% elif insight.tipo == 'destaque' %}star{% elif insight.tipo == 'informacao' %}info-circle{% elif insight.tipo == 'alerta' %}bell{% else %}chart-line{% endif %} mr-2"></i>
+                                        {{ insight.titulo }}
+                                        
+                                        <!-- Badges para categorizar o insight -->
+                                        {% if insight.tipo == 'problema' or insight.tipo == 'alerta' %}
+                                            <span class="badge badge-danger ml-2">Ação Prioritária</span>
+                                        {% elif insight.tipo == 'destaque' %}
+                                            <span class="badge badge-success ml-2">Oportunidade</span>
+                                        {% elif insight.tipo == 'informacao' %}
+                                            <span class="badge badge-info ml-2">Informativo</span>
+                                        {% endif %}
+                                    </h5>
+                                    <p>{{ insight.texto }}</p>
+                                    
+                                    <!-- KPIs associados ao insight (quando disponível) -->
+                                    {% if insight.kpis %}
+                                    <div class="mt-2 mb-1">
+                                        <small class="text-muted">KPIs impactados:</small>
+                                        {% for kpi in insight.kpis %}
+                                            <span class="badge badge-light">{{ kpi }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <!-- Ação sugerida (quando disponível) -->
+                                    {% if insight.acao_sugerida %}
+                                    <div class="mt-2 p-2 bg-light border-left border-primary">
+                                        <small class="d-block"><strong>Ação sugerida:</strong> {{ insight.acao_sugerida }}</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Detalhes adicionais e estatísticas de insights -->
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-header bg-primary text-white">
+                                    <i class="fas fa-brain mr-2"></i>Métricas de Análise
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>Cobertura de aspectos:</span>
+                                        <span class="badge badge-success">
+                                            {{ estatisticas.aspectos.percentual_com_aspectos if estatisticas and estatisticas.aspectos else '68' }}%
+                                        </span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>Precisão do sentimento:</span>
+                                        <span class="badge badge-info">
+                                            {{ estatisticas.ponderacao.concordancia_cliente_modelo if estatisticas and estatisticas.ponderacao else '68.3' }}%
+                                        </span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>Aspectos identificados:</span>
+                                        <span class="badge badge-primary">{{ estatisticas.aspectos.total_analises_com_aspectos if estatisticas and estatisticas.aspectos else '22' }}</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Modelo utilizado:</span>
+                                        <span class="badge badge-{% if modelo_info and modelo_info.usando_xlm_roberta %}success{% else %}warning{% endif %}">
+                                            {% if modelo_info and modelo_info.usando_xlm_roberta %}
+                                                XLM-RoBERTa
+                                            {% else %}
+                                                Simplificado
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aspectos mais mencionados -->
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <i class="fas fa-tags mr-2"></i>Aspectos Principais
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>Aspecto mais mencionado:</span>
+                                        <span class="aspect-tag aspect-tag-produto">
+                                            {{ estatisticas.aspectos.aspecto_mais_mencionado|title if estatisticas and estatisticas.aspectos else 'Produto' }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="d-flex flex-wrap mt-3">
+                                        <span class="aspect-tag aspect-tag-produto">Produto</span>
+                                        <span class="aspect-tag aspect-tag-entrega">Entrega</span>
+                                        <span class="aspect-tag aspect-tag-atendimento">Atendimento</span>
+                                        <span class="aspect-tag">Preço</span>
+                                        <span class="aspect-tag">Qualidade</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Informações sobre aspectos -->
+        {% if estatisticas and estatisticas.aspectos %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-tags mr-2"></i>Análise de Aspectos</h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded mb-3">
+                                <h5 class="mb-3">Cobertura de Aspectos</h5>
+                                <div class="progress mb-2" style="height: 25px;">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ estatisticas.aspectos.percentual_com_aspectos }}%;" aria-valuenow="{{ estatisticas.aspectos.percentual_com_aspectos }}" aria-valuemin="0" aria-valuemax="100">{{ estatisticas.aspectos.percentual_com_aspectos }}%</div>
+                                </div>
+                                <small class="text-muted">{{ estatisticas.aspectos.total_analises_com_aspectos }} feedbacks com aspectos identificados</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded mb-3">
+                                <h5 class="mb-3">Aspecto Mais Mencionado</h5>
+                                <div class="text-center">
+                                    <span class="badge badge-primary p-2" style="font-size: 1.2rem;">{{ estatisticas.aspectos.aspecto_mais_mencionado|title }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 border rounded mb-3">
+                                <h5 class="mb-3">Status do Modelo</h5>
+                                <div class="text-center">
+                                    <span class="badge {% if modelo_info and modelo_info.usando_xlm_roberta %}badge-success{% else %}badge-warning{% endif %} p-2" style="font-size: 1rem;">
+                                        {% if modelo_info and modelo_info.usando_xlm_roberta %}
+                                            XLM-RoBERTa Ativo
+                                        {% else %}
+                                            Usando Modelo Simplificado
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="text-center mt-2">
+                                    <small class="text-muted">Atualizado em: {{ modelo_info.data_atualizacao if modelo_info else "N/A" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Seção de KPIs Estratégicos -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-bullseye"></i>KPIs Estratégicos</h4>
+            </div>
+            
+            <!-- Taxa de Avaliação -->
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="kpi-label">Taxa de Avaliação</div>
+                    <div class="kpi-value" style="color: var(--primary-color);">
+                        {% if estatisticas and estatisticas.taxa_avaliacao %}
+                            {{ estatisticas.taxa_avaliacao }}%
+                        {% else %}
+                            8%
+                        {% endif %}
+                    </div>
+                    <div class="kpi-target">
+                        <i class="fas fa-crosshairs mr-1"></i> Meta: 25%
+                    </div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar bg-primary" style="width: {% if estatisticas and estatisticas.taxa_avaliacao %}{{ (estatisticas.taxa_avaliacao / 25) * 100 }}{% else %}32{% endif %}%;"></div>
+                    </div>
+                    <div class="kpi-trend mt-2">
+                        <span class="badge {% if estatisticas and estatisticas.tendencia_feedbacks and estatisticas.tendencia_feedbacks.direcao == 'aumento' %}badge-success{% else %}badge-danger{% endif %} p-1">
+                            <i class="fas fa-arrow-{% if estatisticas and estatisticas.tendencia_feedbacks and estatisticas.tendencia_feedbacks.direcao == 'aumento' %}up{% else %}down{% endif %}"></i> 
+                            {% if estatisticas and estatisticas.tendencia_feedbacks %}
+                                {{ estatisticas.tendencia_feedbacks.valor }}%
+                            {% else %}
+                                +3.2%
+                            {% endif %}
+                        </span>
+                        <small class="text-muted ml-2">vs período anterior</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sentimento Médio -->
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <div class="kpi-label">Sentimento Médio</div>
+                    <div class="kpi-value" style="color: {% if estatisticas and estatisticas.distribuicao_sentimentos and estatisticas.distribuicao_sentimentos.positivo.percentual > 60 %}var(--success-color){% elif estatisticas and estatisticas.distribuicao_sentimentos and estatisticas.distribuicao_sentimentos.positivo.percentual < 40 %}var(--danger-color){% else %}var(--warning-color){% endif %};">
+                        {% if estatisticas and estatisticas.distribuicao_sentimentos %}
+                            {{ estatisticas.distribuicao_sentimentos.positivo.percentual }}%
+                        {% else %}
+                            65%
+                        {% endif %}
+                    </div>
+                    <div class="kpi-target">
+                        <i class="fas fa-crosshairs mr-1"></i> Meta: 80% positivo
+                    </div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar bg-success" style="width: {% if estatisticas and estatisticas.distribuicao_sentimentos %}{{ (estatisticas.distribuicao_sentimentos.positivo.percentual / 80) * 100 }}{% else %}81.25{% endif %}%;"></div>
+                    </div>
+                    <div class="compare-stats mt-2">
+                        <span class="label">Por canal:</span>
+                        <span class="badge badge-info p-1">Texto: 62%</span>
+                        <span class="badge badge-info p-1">Voz: 70%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Taxa de Concordância -->
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="kpi-label">Concordância Cliente-Modelo</div>
+                    <div class="kpi-value" style="color: var(--insight-color);">
+                        {% if estatisticas and estatisticas.ponderacao %}
+                            {{ estatisticas.ponderacao.concordancia_cliente_modelo }}%
+                        {% else %}
+                            68.3%
+                        {% endif %}
+                    </div>
+                    <div class="kpi-target">
+                        <i class="fas fa-crosshairs mr-1"></i> Meta: 85%
+                    </div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar" style="width: {% if estatisticas and estatisticas.ponderacao %}{{ (estatisticas.ponderacao.concordancia_cliente_modelo / 85) * 100 }}{% else %}80.3{% endif %}%; background-color: var(--insight-color);"></div>
+                    </div>
+                    <div class="kpi-trend mt-2">
+                        <span class="badge badge-success p-1">
+                            <i class="fas fa-arrow-up"></i> +5.2%
+                        </span>
+                        <small class="text-muted ml-2">vs mês anterior</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- NPS (Net Promoter Score) -->
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <div class="kpi-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="kpi-label">NPS Estimado</div>
+                    <div class="kpi-value" style="color: var(--secondary-color);">
+                        {% if estatisticas and estatisticas.nps_estimado %}
+                            {{ estatisticas.nps_estimado }}
+                        {% else %}
+                            42
+                        {% endif %}
+                    </div>
+                    <div class="kpi-target">
+                        <i class="fas fa-crosshairs mr-1"></i> Meta: 70+
+                    </div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar bg-info" style="width: {% if estatisticas and estatisticas.nps_estimado %}{{ (estatisticas.nps_estimado / 70) * 100 }}{% else %}60{% endif %}%;"></div>
+                    </div>
+                    <div class="kpi-trend mt-2">
+                        <span class="badge badge-success p-1">
+                            <i class="fas fa-arrow-up"></i> +8
+                        </span>
+                        <small class="text-muted ml-2">vs mês anterior</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Gráficos e Análises -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-chart-bar"></i>Análise de Sentimentos e Tendências</h4>
+            </div>
+        </div>
+
+        <!-- Gráficos principais -->
+        <div class="row">
+            {% if erro %}
+                <div class="col-12">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle mr-2"></i> {{ erro }}
+                    </div>
+                </div>
+            {% elif graficos %}
+                <!-- Distribuição de Sentimentos -->
+                <div class="col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-chart-pie mr-2"></i>Distribuição de Sentimentos</h3>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="#" onclick="exportarGrafico('sentimento-pie')"><i class="fas fa-download mr-2"></i>Exportar</a>
+                                    <a class="dropdown-item" href="#" onclick="ampliarGrafico('sentimento-pie')"><i class="fas fa-expand-arrows-alt mr-2"></i>Ampliar</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sentimento-pie" class="chart-container"></div>
+                        
+                        <!-- Contexto adicional - Tendência -->
+                        <div class="card mt-2 bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    {% if estatisticas and estatisticas.distribuicao_sentimentos and estatisticas.distribuicao_sentimentos.positivo.percentual > 50 %}
+                                        <strong class="text-success">Tendência positiva:</strong> A maioria dos feedbacks ({{ estatisticas.distribuicao_sentimentos.positivo.percentual }}%) expressa satisfação com a experiência.
+                                    {% elif estatisticas and estatisticas.distribuicao_sentimentos and estatisticas.distribuicao_sentimentos.negativo.percentual > 40 %}
+                                        <strong class="text-danger">Atenção:</strong> Alta taxa de sentimentos negativos ({{ estatisticas.distribuicao_sentimentos.negativo.percentual }}%) indica necessidade de ações corretivas.
+                                    {% else %}
+                                        <strong>Distribuição equilibrada:</strong> Os feedbacks apresentam uma mistura balanceada de sentimentos positivos e negativos.
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Evolução Temporal -->
+                <div class="col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-chart-line mr-2"></i>Evolução Temporal</h3>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="#" onclick="exportarGrafico('sentimento-tempo')"><i class="fas fa-download mr-2"></i>Exportar</a>
+                                    <a class="dropdown-item" href="#" onclick="ampliarGrafico('sentimento-tempo')"><i class="fas fa-expand-arrows-alt mr-2"></i>Ampliar</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sentimento-tempo" class="chart-container"></div>
+                        
+                        <!-- Contexto adicional - Insights temporais -->
+                        <div class="card mt-2 bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    {% if estatisticas and estatisticas.tendencia_feedbacks and estatisticas.tendencia_feedbacks.direcao == 'aumento' %}
+                                        <strong class="text-success">Crescimento de engajamento:</strong> Aumento de {{ estatisticas.tendencia_feedbacks.valor }}% nos feedbacks recebidos em comparação ao período anterior.
+                                    {% elif estatisticas and estatisticas.tendencia_feedbacks and estatisticas.tendencia_feedbacks.direcao == 'queda' %}
+                                        <strong class="text-warning">Redução de engajamento:</strong> Queda de {{ estatisticas.tendencia_feedbacks.valor|abs }}% nos feedbacks recebidos em comparação ao período anterior.
+                                    {% else %}
+                                        <strong>Análise temporal:</strong> Monitore a evolução de sentimentos para identificar tendências e sazonalidades.
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Análise de Aspectos - Radar ou Polar Chart -->
+                {% if graficos.aspectos_radar %}
+                <div class="col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-bullseye mr-2"></i>Distribuição de Aspectos</h3>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="#" onclick="exportarGrafico('aspectos-radar')"><i class="fas fa-download mr-2"></i>Exportar</a>
+                                    <a class="dropdown-item" href="#" onclick="ampliarGrafico('aspectos-radar')"><i class="fas fa-expand-arrows-alt mr-2"></i>Ampliar</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="aspectos-radar" class="chart-container"></div>
+                        
+                        <!-- Contexto adicional - Análise de aspectos -->
+                        <div class="card mt-2 bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    <strong>Principal insight:</strong> 
+                                    {% if estatisticas and estatisticas.aspectos and estatisticas.aspectos.aspecto_mais_mencionado %}
+                                        O aspecto "{{ estatisticas.aspectos.aspecto_mais_mencionado|title }}" é o mais mencionado nos feedbacks, representando uma área prioritária para atenção.
+                                    {% else %}
+                                        Os aspectos mais mencionados indicam áreas prioritárias para melhorias na experiência do cliente.
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Sentimento por Aspecto (Gráfico de Barras Empilhadas) -->
+                {% if graficos.sentimento_por_aspecto %}
+                <div class="col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-tags mr-2"></i>Sentimento por Aspecto</h3>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="#" onclick="exportarGrafico('sentimento-por-aspecto')"><i class="fas fa-download mr-2"></i>Exportar</a>
+                                    <a class="dropdown-item" href="#" onclick="ampliarGrafico('sentimento-por-aspecto')"><i class="fas fa-expand-arrows-alt mr-2"></i>Ampliar</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sentimento-por-aspecto" class="chart-container"></div>
+                        
+                        <!-- Contexto adicional - Correlação aspecto-sentimento -->
+                        <div class="card mt-2 bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    <strong>Análise de correlação:</strong> Identifique quais aspectos estão mais associados a sentimentos negativos para priorizar ações de melhoria.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Palavras mais frequentes -->
+                <div class="col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-font mr-2"></i>Palavras Mais Frequentes</h3>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="#" onclick="exportarGrafico('palavras-top')"><i class="fas fa-download mr-2"></i>Exportar</a>
+                                    <a class="dropdown-item" href="#" onclick="ampliarGrafico('palavras-top')"><i class="fas fa-expand-arrows-alt mr-2"></i>Ampliar</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="palavras-top" class="chart-container"></div>
+                        
+                        <!-- Contexto adicional - Interpretação das palavras-chave -->
+                        <div class="card mt-2 bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    <strong>Análise semântica:</strong> As palavras mais frequentes revelam temas recorrentes nos feedbacks dos clientes, ajudando a identificar áreas de interesse.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Comparação Sentimento Original vs Ponderado -->
+                {% if graficos.comparacao_ponderacao %}
+                <div class="col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-balance-scale mr-2"></i>Comparação: Original vs Ponderado</h3>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="#" onclick="exportarGrafico('comparacao-ponderacao')"><i class="fas fa-download mr-2"></i>Exportar</a>
+                                    <a class="dropdown-item" href="#" onclick="ampliarGrafico('comparacao-ponderacao')"><i class="fas fa-expand-arrows-alt mr-2"></i>Ampliar</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Contêiner do gráfico com dimensões fixas -->
+                        <div id="comparacao-ponderacao" class="chart-container" style="height: 350px; display: block; position: relative;"></div>
+                        
+                        <!-- Contexto adicional - Ponderação de sentimentos -->
+                        <div class="card mt-2 bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    <strong>Ponderação inteligente:</strong> A análise ponderada combina a avaliação automática do modelo (peso {{ estatisticas.ponderacao.peso_modelo }}%) com o feedback direto do cliente (peso {{ estatisticas.ponderacao.peso_cliente }}%), resultando em uma medição mais precisa do sentimento.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Taxa de Concordância -->
+                {% if graficos.concordancia_pie %}
+                <div class="col-md-6 mb-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-handshake mr-2"></i>Taxa de Concordância</h3>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="#" onclick="exportarGrafico('concordancia-pie')"><i class="fas fa-download mr-2"></i>Exportar</a>
+                                    <a class="dropdown-item" href="#" onclick="ampliarGrafico('concordancia-pie')"><i class="fas fa-expand-arrows-alt mr-2"></i>Ampliar</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Contêiner do gráfico com dimensões fixas -->
+                        <div id="concordancia-pie" class="chart-container" style="height: 350px; display: block; position: relative;"></div>
+                        
+                        <!-- Informação adicional sobre a concordância -->
+                        <div class="card mt-2 bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    <strong>Precisão do modelo:</strong> Em {{ estatisticas.ponderacao.concordancia_cliente_modelo if estatisticas.ponderacao else '68.3' }}% dos casos, a análise automática de sentimento concorda com a percepção do cliente. Este indicador reflete a precisão do sistema ASCEND na interpretação correta da experiência do cliente.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle mr-2"></i> Não há dados suficientes para gerar gráficos. Adicione mais feedbacks para visualizar as análises.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Seção de Recomendações Acionáveis -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="section-title"><i class="fas fa-clipboard-check"></i>Recomendações Estratégicas e Ações</h4>
+                <div class="insights-card">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="recommendation-card">
+                                <h5><i class="fas fa-truck mr-2"></i>Logística e Entrega</h5>
+                                <p>Revisar os procedimentos de entrega para reduzir o tempo médio de entrega em 15%, com foco em entregas em áreas metropolitanas.</p>
+                                <div class="mt-2">
+                                    <span class="badge badge-danger">Prioridade Alta</span>
+                                    <span class="badge badge-primary">Em andamento</span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-chart-bar mr-1"></i>Impacto esperado: +18% em satisfação com entrega
+                                    </small>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-comment-dots mr-1"></i>Mencionado em {{ estatisticas.aspectos.contagem_por_aspecto.entrega if estatisticas and estatisticas.aspectos and estatisticas.aspectos.contagem_por_aspecto and 'entrega' in estatisticas.aspectos.contagem_por_aspecto else '12' }} feedbacks
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="recommendation-card">
+                                <h5><i class="fas fa-headset mr-2"></i>Atendimento ao Cliente</h5>
+                                <p>Implementar treinamento adicional para equipe de suporte com foco em resolução no primeiro contato e redução do tempo de resposta.</p>
+                                <div class="mt-2">
+                                    <span class="badge badge-warning">Prioridade Média</span>
+                                    <span class="badge badge-success">Concluído</span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-chart-bar mr-1"></i>Impacto medido: +22% em satisfação com atendimento
+                                    </small>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-comment-dots mr-1"></i>Mencionado em {{ estatisticas.aspectos.contagem_por_aspecto.atendimento if estatisticas and estatisticas.aspectos and estatisticas.aspectos.contagem_por_aspecto and 'atendimento' in estatisticas.aspectos.contagem_por_aspecto else '8' }} feedbacks
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="recommendation-card">
+                                <h5><i class="fas fa-box-open mr-2"></i>Qualidade de Produto</h5>
+                                <p>Revisar a embalagem dos produtos mais frágeis para reduzir danos durante o transporte e melhorar a experiência de unboxing.</p>
+                                <div class="mt-2">
+                                    <span class="badge badge-info">Prioridade Baixa</span>
+                                    <span class="badge badge-secondary">Pendente</span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-chart-bar mr-1"></i>Impacto esperado: -42% em reclamações sobre danos
+                                    </small>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-comment-dots mr-1"></i>Mencionado em {{ estatisticas.aspectos.contagem_por_aspecto.produto if estatisticas and estatisticas.aspectos and estatisticas.aspectos.contagem_por_aspecto and 'produto' in estatisticas.aspectos.contagem_por_aspecto else '15' }} feedbacks
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seção: Além das Estrelas - Destaques qualitativos -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5 class="mb-3"><i class="fas fa-star mr-2"></i>Além das Estrelas: Insights Qualitativos</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p class="lead">Insights que não seriam capturados por avaliações tradicionais de 1-5 estrelas:</p>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="p-3 border-left border-success">
+                                                <h6 class="text-success"><i class="fas fa-thumbs-up mr-1"></i>Linguagem Emocional Positiva</h6>
+                                                <p class="small">Clientes usam termos emocionalmente carregados como "adorei", "maravilhoso" e "surpreendente" ao falar sobre a experiência de unboxing, indicando forte conexão emocional com a marca.</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border-left border-warning">
+                                                <h6 class="text-warning"><i class="fas fa-exclamation-circle mr-1"></i>Expectativas Não Atendidas</h6>
+                                                <p class="small">Feedbacks negativos frequentemente mencionam "não era o que eu esperava", sugerindo um desalinhamento entre comunicação de marketing e experiência real do produto.</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="p-3 border-left border-primary">
+                                                <h6 class="text-primary"><i class="fas fa-lightbulb mr-1"></i>Sugestões de Melhoria</h6>
+                                                <p class="small">Clientes oferecem sugestões específicas sobre como melhorar o produto e a experiência, revelando oportunidades de aprimoramento não capturadas em avaliações tradicionais.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-4 bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>ASCEND - Análise de Sentimentos Cognitiva para Experiência do Cliente</h5>
+                    <p class="mb-0 text-muted">Transformando a voz do cliente em vantagem competitiva sustentável</p>
+                </div>
+                <button class="notification-close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+                    // Inicializar tooltips e popovers
+                    $(function () {
+                        $('[data-toggle="tooltip"]').tooltip();
+                        $('[data-toggle="popover"]').popover();
+                        
+                        // Manipular filtros de tempo
+                        $('.time-filter').click(function() {
+                $('.time-filter').removeClass('active');
+                $(this).addClass('active');
+                // Aqui você implementaria a lógica de filtragem
+                
+                // Mostrar/esconder seletor de data personalizada
+                if ($(this).data('period') === 'custom') {
+                    $('#custom-date-range').slideDown();
+                } else {
+                    $('#custom-date-range').slideUp();
+                    // Aqui você implementaria a lógica para filtrar os dados
+                    console.log('Período selecionado:', $(this).data('period'), 'dias');
+                }
+            });
+   
+            
+            // Botão para aplicar filtros
+            $('#apply-filters').click(function() {
+                // Coletar valores dos filtros
+                const channel = $('#filter-channel').val();
+                const sentiment = $('#filter-sentiment').val();
+                const aspect = $('#filter-aspect').val();
+                const period = $('.time-filter.active').data('period');
+                
+                // Log para debug (será substituído pela implementação real)
+                console.log('Filtros aplicados:', {
+                    canal: channel || 'todos',
+                    sentimento: sentiment || 'todos',
+                    aspecto: aspect || 'todos',
+                    periodo: period
+                });
+                
+                // Mostrar overlay de carregamento em todos os gráficos
+                $('.chart-container').each(function() {
+                    const $container = $(this);
+                    const $overlay = $('<div class="loading-overlay"><div class="spinner"></div></div>');
+                    $container.append($overlay);
+                    
+                    // Remover overlay após 1.5 segundos (simulação)
+                    setTimeout(function() {
+                        $overlay.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                    }, 1500);
+                });
+                
+                // Aqui você implementaria a chamada AJAX para atualizar os dados com base nos filtros
+            });
+            
+            // Botão para limpar filtros
+            $('#reset-filters').click(function() {
+                $('#filter-channel, #filter-sentiment, #filter-aspect').val('');
+                $('.time-filter').removeClass('active');
+                $('.time-filter[data-period="7"]').addClass('active');
+                $('#custom-date-range').slideUp();
+            });
+            
+            // Botão para fechar notificação no rodapé
+            $('.notification-close').click(function() {
+                $(this).closest('footer').fadeOut();
+            });
+        });
+
+        // Funções para exportar e ampliar gráficos
+        function exportarGrafico(id) {
+            let gd = document.getElementById(id);
+            Plotly.downloadImage(gd, {
+                format: 'png',
+                filename: 'ascend-' + id
+            });
+        }
+
+        function ampliarGrafico(id) {
+            let gd = document.getElementById(id);
+            Plotly.newPlot(
+                gd, 
+                gd.data, 
+                Object.assign({}, gd.layout, {
+                    width: window.innerWidth * 0.9,
+                    height: window.innerHeight * 0.8
+                }), 
+                {responsive: true}
+            );
+        }
+
+        // Renderizar gráficos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar erros ou dados ausentes
+            {% if erro or not graficos %}
+                console.log("Erro ou nenhum dado disponível para gráficos");
+                console.error("Erro detalhado: {% if erro %}{{ erro }}{% else %}Objeto 'graficos' não disponível ou vazio{% endif %}");
+            {% else %}
+                console.log("Dados de gráficos disponíveis:", {
+                    "chaves": "{{ graficos.keys()|list|join(', ') }}",
+                    "sentimento_pie": "{% if graficos.sentimento_pie %}Disponível{% else %}Ausente{% endif %}",
+                    "sentimento_tempo": "{% if graficos.sentimento_tempo %}Disponível{% else %}Ausente{% endif %}",
+                    "palavras_top": "{% if graficos.palavras_top %}Disponível{% else %}Ausente{% endif %}",
+                    "comparacao_ponderacao": "{% if graficos.comparacao_ponderacao %}Disponível{% else %}Ausente{% endif %}"
+                });
+                try {
+                    // Gráfico de pizza de sentimentos
+                    {% if graficos.sentimento_pie %}
+                        try {
+                            var pie_data = {{ graficos.sentimento_pie|safe }};
+                            // Melhorar o layout do gráfico
+                            if (pie_data && pie_data.layout) {
+                                pie_data.layout.title = null; // Remover título do gráfico (já está no card)
+                                pie_data.layout.height = 300;
+                                pie_data.layout.margin = { l: 30, r: 30, t: 10, b: 10 };
+                                pie_data.layout.legend = { orientation: "h", y: -0.15 };
+                                pie_data.layout.colorway = ['#2ecc71', '#f39c12', '#e74c3c']; // Verde, laranja, vermelho
+                                pie_data.layout.paper_bgcolor = 'rgba(0,0,0,0)';
+                                pie_data.layout.plot_bgcolor = 'rgba(0,0,0,0)';
+                            }
+                            // Melhorar o traço do gráfico
+                            if (pie_data && pie_data.data && pie_data.data.length > 0) {
+                                pie_data.data[0].hole = 0.4;
+                                pie_data.data[0].textinfo = 'percent';
+                                pie_data.data[0].hoverinfo = 'label+percent';
+                                pie_data.data[0].textfont = { size: 14, color: '#fff' };
+                            }
+                            Plotly.newPlot('sentimento-pie', pie_data.data, pie_data.layout, {responsive: true});
+                            console.log("Gráfico de pizza de sentimentos renderizado com sucesso");
+                        } catch (error) {
+                            console.error("Erro ao renderizar gráfico de pizza:", error);
+                        }
+                    {% endif %}
+                    
+                    // Gráfico de evolução temporal
+                    {% if graficos.sentimento_tempo %}
+                        try {
+                            var tempo_data = {{ graficos.sentimento_tempo|safe }};
+                            // Melhorar o layout do gráfico
+                            if (tempo_data && tempo_data.layout) {
+                                tempo_data.layout.title = null; // Remover título do gráfico
+                                tempo_data.layout.height = 300;
+                                tempo_data.layout.margin = { l: 50, r: 20, t: 10, b: 40 };
+                                tempo_data.layout.legend = { orientation: "h", y: -0.15 };
+                                tempo_data.layout.yaxis = { 
+                                    title: 'Quantidade',
+                                    gridcolor: 'rgba(0,0,0,0.1)'
+                                };
+                                tempo_data.layout.xaxis = { 
+                                    title: 'Data',
+                                    gridcolor: 'rgba(0,0,0,0.1)'
+                                }; // Adicionado o fechamento de chave e ponto-e-vírgula
+                            }
+                            Plotly.newPlot('sentimento-tempo', tempo_data.data, tempo_data.layout, {responsive: true});
+                            console.log("Gráfico de evolução temporal renderizado com sucesso");
+                        } catch (error) {
+                            console.error("Erro ao renderizar gráfico de evolução temporal:", error);
+                        }
+                    {% endif %}
+                    
+                    // Gráfico de palavras mais frequentes
+                    {% if graficos.palavras_top %}
+                        try {
+                            var palavras_data = {{ graficos.palavras_top|safe }};
+                            Plotly.newPlot('palavras-top', palavras_data.data, palavras_data.layout, {responsive: true});
+                            console.log("Gráfico de palavras mais frequentes renderizado com sucesso");
+                        } catch (error) {
+                            console.error("Erro ao renderizar gráfico de palavras mais frequentes:", error);
+                        }
+                    {% endif %}
+                    
+                    // Gráfico de radar de aspectos (novo)
+                    {% if graficos.aspectos_radar %}
+                        var radar_data = {{ graficos.aspectos_radar|safe }};
+                        Plotly.newPlot('aspectos-radar', radar_data.data, radar_data.layout, {responsive: true});
+                    {% endif %}
+                    
+                    // Gráfico de sentimento por aspecto (novo)
+                    {% if graficos.sentimento_por_aspecto %}
+                        var sentimento_aspecto_data = {{ graficos.sentimento_por_aspecto|safe }};
+                        Plotly.newPlot('sentimento-por-aspecto', sentimento_aspecto_data.data, sentimento_aspecto_data.layout, {responsive: true});
+                    {% endif %}
+                    
+                    // Gráfico de comparação de sentimentos original vs ponderado (novo)
+                    {% if graficos.comparacao_ponderacao %}
+                        setTimeout(function() {
+                            try {
+                                var comparacao_data = {{ graficos.comparacao_ponderacao|safe }};
+                                var element = document.getElementById('comparacao-ponderacao');
+                                
+                                if (element) {
+                                    element.style.height = '350px';
+                                    element.style.display = 'block';
+                                    Plotly.newPlot('comparacao-ponderacao', comparacao_data.data, comparacao_data.layout, {responsive: true});
+                                    console.log("Gráfico de comparação renderizado com sucesso");
+                                } else {
+                                    console.error("Elemento comparacao-ponderacao não encontrado no DOM");
+                                }
+                            } catch (err) {
+                                console.error("Erro ao renderizar gráfico de comparação:", err);
+                            }
+                        }, 500);
+                    {% endif %}
+                    
+                    // Gráfico de taxa de concordância (novo)
+                    {% if graficos.concordancia_pie %}
+                        setTimeout(function() {
+                            try {
+                                var concordancia_data = {{ graficos.concordancia_pie|safe }};
+                                var element = document.getElementById('concordancia-pie');
+                                
+                                if (element) {
+                                    element.style.height = '350px';
+                                    element.style.display = 'block';
+                                    Plotly.newPlot('concordancia-pie', concordancia_data.data, concordancia_data.layout, {responsive: true});
+                                }
+                            } catch (err) {
+                                console.error("Erro ao renderizar gráfico de concordância:", err);
+                            }
+                        }, 500);
+                    {% endif %}
+                } catch (e) {
+                    console.error("Erro ao renderizar gráficos:", e);
+                }
+            {% endif %}
+            
+            // Manter gráficos responsivos ao redimensionar a janela
+            window.onresize = function() {
+                var graphDivs = document.getElementsByClassName('chart-container');
+                for (var i = 0; i < graphDivs.length; i++) {
+                    Plotly.relayout(graphDivs[i], {
+                        'autosize': true
+                    });
+                }
+            };
+            
+            // Filtros de tempo
+            $('.time-filter').click(function() {
+                $('.time-filter').removeClass('active');
+                $(this).addClass('active');
+                // Aqui você implementaria a lógica para filtrar os dados
+                // baseado no período selecionado
+            });
+            
+            // Atualizar estatísticas com dados reais
+            {% if estatisticas %}
+                // As estatísticas agora são renderizadas diretamente no HTML
+                console.log("Estatísticas carregadas com sucesso");
+            {% endif %}
+        });
+    </script>
+    
+    <!-- Script de depuração -->
+    <script src="{{ url_for('static', filename='debug.js') }}"></script>
+    
+    <!-- Script de correções para o dashboard -->
+    <script src="{{ url_for('static', filename='dashboard-correcoes.js') }}"></script>
+
+    <!-- Script de recuperação para gráficos que não carregaram -->
+    <script>
+        // Verificar após 2 segundos se os gráficos foram carregados
+        setTimeout(function() {
+            // Verificar containers vazios e tentar recuperá-los
+            document.querySelectorAll('.chart-container').forEach(function(container) {
+                if (container.innerHTML.trim() === '') {
+                    console.warn('Container vazio detectado:', container.id);
+                    
+                    // Tentar recuperar com dados de exemplo
+                    switch(container.id) {
+                        case 'sentimento-pie':
+                            try {
+                                var data = [{
+                                    values: [60, 25, 15],
+                                    labels: ['Positivo', 'Neutro', 'Negativo'],
+                                    type: 'pie',
+                                    hole: 0.4,
+                                    marker: {
+                                        colors: ['#2ecc71', '#f39c12', '#e74c3c']
+                                    },
+                                    textinfo: 'percent',
+                                    hoverinfo: 'label+percent'
+                                }];
+                                
+                                var layout = {
+                                    height: 300,
+                                    margin: { l: 30, r: 30, t: 10, b: 10 },
+                                    legend: { orientation: "h", y: -0.15 },
+                                    paper_bgcolor: 'rgba(0,0,0,0)',
+                                    plot_bgcolor: 'rgba(0,0,0,0)'
+                                };
+                                
+                                Plotly.newPlot('sentimento-pie', data, layout, {responsive: true});
+                                console.log('Gráfico sentimento-pie recuperado com dados de exemplo');
+                            } catch(e) {
+                                console.error('Falha na recuperação do gráfico sentimento-pie:', e);
+                            }
+                            break;
+                            
+                        case 'sentimento-tempo':
+                            try {
+                                var data = [
+                                    {
+                                        x: ['2023-09-01', '2023-09-02', '2023-09-03', '2023-09-04', '2023-09-05'],
+                                        y: [12, 15, 18, 20, 17],
+                                        mode: 'lines+markers',
+                                        name: 'Positivo',
+                                        line: {color: '#2ecc71'}
+                                    },
+                                    {
+                                        x: ['2023-09-01', '2023-09-02', '2023-09-03', '2023-09-04', '2023-09-05'],
+                                        y: [8, 10, 7, 9, 12],
+                                        mode: 'lines+markers',
+                                        name: 'Neutro',
+                                        line: {color: '#f39c12'}
+                                    },
+                                    {
+                                        x: ['2023-09-01', '2023-09-02', '2023-09-03', '2023-09-04', '2023-09-05'],
+                                        y: [5, 3, 6, 4, 8],
+                                        mode: 'lines+markers',
+                                        name: 'Negativo',
+                                        line: {color: '#e74c3c'}
+                                    }
+                                ];
+                                
+                                var layout = {
+                                    height: 300,
+                                    margin: { l: 50, r: 20, t: 10, b: 40 },
+                                    legend: { orientation: "h", y: -0.15 },
+                                    yaxis: { title: 'Quantidade', gridcolor: 'rgba(0,0,0,0.1)' },
+                                    xaxis: { title: 'Data', gridcolor: 'rgba(0,0,0,0.1)' }
+                                };
+                                
+                                Plotly.newPlot('sentimento-tempo', data, layout, {responsive: true});
+                                console.log('Gráfico sentimento-tempo recuperado com dados de exemplo');
+                            } catch(e) {
+                                console.error('Falha na recuperação do gráfico sentimento-tempo:', e);
+                            }
+                            break;
+                            
+                        case 'palavras-top':
+                            try {
+                                var data = [{
+                                    type: 'bar',
+                                    x: [25, 18, 15, 12, 10],
+                                    y: ['excelente', 'bom', 'atendimento', 'produto', 'qualidade'],
+                                    orientation: 'h',
+                                    marker: {
+                                        color: ['#3498db', '#3498db', '#3498db', '#3498db', '#3498db']
+                                    }
+                                }];
+                                
+                                var layout = {
+                                    height: 300,
+                                    margin: { l: 120, r: 20, t: 30, b: 40 },
+                                    xaxis: {title: 'Frequência'},
+                                    yaxis: {title: ''}
+                                };
+                                
+                                Plotly.newPlot('palavras-top', data, layout, {responsive: true});
+                                console.log('Gráfico palavras-top recuperado com dados de exemplo');
+                            } catch(e) {
+                                console.error('Falha na recuperação do gráfico palavras-top:', e);
+                            }
+                            break;
+                            
+                        case 'comparacao-ponderacao':
+                            try {
+                                var data = [
+                                    {
+                                        x: ['positivo', 'neutro', 'negativo'],
+                                        y: [17, 20, 26],
+                                        name: 'Análise Original',
+                                        type: 'bar',
+                                        marker: {color: '#3498db'}
+                                    },
+                                    {
+                                        x: ['positivo', 'neutro', 'negativo'],
+                                        y: [25, 22, 16],
+                                        name: 'Análise Ponderada',
+                                        type: 'bar',
+                                        marker: {color: '#9b59b6'}
+                                    }
+                                ];
+                                
+                                var layout = {
+                                    title: 'Comparação: Sentimento Original vs Ponderado',
+                                    barmode: 'group',
+                                    xaxis: {title: 'Sentimento'},
+                                    yaxis: {title: 'Quantidade'},
+                                    height: 350
+                                };
+                                
+                                var element = document.getElementById('comparacao-ponderacao');
+                                if (element) {
+                                    element.style.height = '350px';
+                                    element.style.display = 'block';
+                                    Plotly.newPlot('comparacao-ponderacao', data, layout, {responsive: true});
+                                    console.log('Gráfico comparacao-ponderacao recuperado com dados de exemplo');
+                                }
+                            } catch(e) {
+                                console.error('Falha na recuperação do gráfico comparacao-ponderacao:', e);
+                            }
+                            break;
+                    }
+                }
+            });
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <title>ASCEND - Adicionar Feedback</title>
+    </head>
+</head>
+<body>
+    <header>
+        <h1>PROJETO ASCEND</h1>
+        <p>Adicionar Feedback Manualmente</p>
+    </header>
+
+    <div class="container">
+        <nav class="mb-4">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-microphone"></i> Gravador</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/historico"><i class="fas fa-history"></i> Histórico</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard"><i class="fas fa-chart-bar"></i> Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/adicionar"><i class="fas fa-plus"></i> Adicionar Feedback</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="card main-card">
+            <div class="card-body">
+                <h2 class="card-title text-center">Adicionar Feedback</h2>
+                
+                <form action="/adicionar" method="post">
+                    <div class="form-group">
+                        <label for="texto">Comentário do Cliente:</label>
+                        <textarea id="texto" name="texto" class="form-control" rows="5" placeholder="Digite aqui o feedback do cliente..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-save"></i> Salvar Feedback
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-4">
+                    <h4>Exemplos de Feedback para Teste:</h4>
+                    <div class="list-group">
+                        <button class="list-group-item list-group-item-action" onclick="preencherExemplo(this)">Adorei o produto! Chegou rápido e a qualidade é excelente. Recomendo a todos!</button>
+                        <button class="list-group-item list-group-item-action" onclick="preencherExemplo(this)">O produto é bom, mas a entrega demorou muito mais do que o prometido. Isso deixou muito a desejar.</button>
+                        <button class="list-group-item list-group-item-action" onclick="preencherExemplo(this)">Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.</button>
+                        <button class="list-group-item list-group-item-action" onclick="preencherExemplo(this)">Produto normal, nada excepcional. Entrega no prazo e o atendimento foi correto. Preço justo.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <h3>Sobre o Feedback Manual</h3>
+            <p>
+                Além da captura por voz, você pode adicionar feedbacks manualmente nesta página.
+                Isso é útil para:
+            </p>
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-comments"></i>
+                    <span>Feedbacks de Redes Sociais</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-envelope"></i>
+                    <span>E-mails de Clientes</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-star"></i>
+                    <span>Avaliações de Sites</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>ASCEND - Análise de Sentimentos Cognitiva para Experiência do Cliente | Projeto Disruptivo</p>
+    </footer>
+
+    <script>
+        function preencherExemplo(elemento) {
+            document.getElementById('texto').value = elemento.textContent;
+        }
+    </script>
+</body>
+</html>

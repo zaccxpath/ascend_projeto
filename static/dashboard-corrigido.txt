@@ -1,0 +1,74 @@
+CORREÇÕES NECESSÁRIAS PARA O ARQUIVO dashboard.html
+
+Após análise detalhada do código, foram identificados os seguintes problemas e respectivas soluções:
+
+1. PROBLEMA: Função JavaScript incompleta/não finalizada no handler de time-filter
+   SOLUÇÃO: A função de click para os filtros de tempo deve estar estruturada corretamente.
+   
+   Código corrigido:
+   ```js
+   $('.time-filter').click(function() {
+       $('.time-filter').removeClass('active');
+       $(this).addClass('active');
+       // Aqui você implementaria a lógica de filtragem
+       
+       // Mostrar/esconder seletor de data personalizada
+       if ($(this).data('period') === 'custom') {
+           $('#custom-date-range').slideDown();
+       } else {
+           $('#custom-date-range').slideUp();
+           // Aqui você implementaria a lógica para filtrar os dados
+           console.log('Período selecionado:', $(this).data('period'), 'dias');
+       }
+   });
+   ```
+
+2. PROBLEMA: Duplicidade na associação de eventos aos filtros de tempo
+   SOLUÇÃO: Remover o segundo handler duplicado que aparece no final do arquivo (trecho que começa com "// Filtros de tempo").
+   
+   Trecho a ser removido:
+   ```js
+   // Filtros de tempo
+   $('.time-filter').click(function() {
+       $('.time-filter').removeClass('active');
+       $(this).addClass('active');
+       // Aqui você implementaria a lógica para filtrar os dados
+       // baseado no período selecionado
+   });
+   ```
+
+3. PROBLEMA: Botão de notificação sem funcionalidade definida
+   SOLUÇÃO: Adicionar um event handler para o botão de fechar notificação.
+   
+   Código a ser adicionado dentro do bloco $(function() { ... }):
+   ```js
+   // Botão para fechar notificação no rodapé
+   $('.notification-close').click(function() {
+       $(this).closest('footer').fadeOut();
+   });
+   ```
+
+4. PROBLEMA: Erros em templates Jinja causando problemas de renderização
+   SOLUÇÃO: Os erros de linter relacionados aos templates Jinja são esperados porque o linter não entende a sintaxe Jinja. 
+   Não é necessário corrigir esses erros, mas é importante garantir que os scripts de correção estejam sendo carregados.
+
+INSTRUÇÕES DE IMPLEMENTAÇÃO:
+
+1. Mantenha o script dashboard-correcoes.js que já foi criado. Ele implementa soluções para todos 
+   os problemas identificados, incluindo:
+   
+   - Remoção da duplicidade de handlers
+   - Correta implementação da funcionalidade do botão de notificação
+   - Tratamento de erros nos gráficos
+   - Melhoria nas funções de exportar e ampliar gráficos
+
+2. Se não for possível editar diretamente o arquivo dashboard.html, mantenha apenas o script
+   dashboard-correcoes.js que já implementa todas as correções necessárias através de JavaScript.
+
+3. Uma alternativa para solucionar o problema de duplicidade sem editar o arquivo original
+   é usar JavaScript para remover todos os handlers existentes e adicionar novos, como implementado
+   no script de correções.
+
+OBSERVAÇÃO: Estes problemas são típicos de desenvolvimento web e podem ser corrigidos 
+com pequenas alterações no código. O script de correção dashboard-correcoes.js implementa
+todas estas correções sem necessidade de modificar o arquivo original. 

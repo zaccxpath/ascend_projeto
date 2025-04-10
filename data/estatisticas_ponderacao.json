@@ -1,0 +1,18 @@
+{
+    "total_registros": 103,
+    "concordancia_cliente_modelo": 73.7864077669903,
+    "distribuicao_sentimento_original": {
+        "negativo": 59,
+        "neutro": 24,
+        "positivo": 20
+    },
+    "distribuicao_sentimento_ponderado": {
+        "negativo": 59,
+        "neutro": 24,
+        "positivo": 20
+    },
+    "peso_cliente_normalizado": 27.27272727272727,
+    "peso_modelo_normalizado": 72.72727272727273,
+    "soma_pesos_original": 110,
+    "data_geracao": "2025-04-06 17:52:05"
+}

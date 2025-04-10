@@ -1,0 +1,11 @@
+Flask
+SpeechRecognition
+nltk
+pandas
+matplotlib
+seaborn
+plotly
+pyaudio
+transformers
+torch
+huggingface_hub

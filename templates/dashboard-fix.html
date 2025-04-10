@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<!-- ... O restante do conteúdo do head e body permanece inalterado ... -->
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Inicializar tooltips e popovers
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-toggle="popover"]').popover();
+            
+            // Manipular filtros de tempo
+            $('.time-filter').click(function() {
+                $('.time-filter').removeClass('active');
+                $(this).addClass('active');
+                // Aqui você implementaria a lógica de filtragem
+                
+                // Mostrar/esconder seletor de data personalizada
+                if ($(this).data('period') === 'custom') {
+                    $('#custom-date-range').slideDown();
+                } else {
+                    $('#custom-date-range').slideUp();
+                    // Aqui você implementaria a lógica para filtrar os dados
+                    console.log('Período selecionado:', $(this).data('period'), 'dias');
+                }
+            });
+            
+            // Botão para aplicar filtros
+            $('#apply-filters').click(function() {
+                // Coletar valores dos filtros
+                const channel = $('#filter-channel').val();
+                const sentiment = $('#filter-sentiment').val();
+                const aspect = $('#filter-aspect').val();
+                const period = $('.time-filter.active').data('period');
+                
+                // Log para debug (será substituído pela implementação real)
+                console.log('Filtros aplicados:', {
+                    canal: channel || 'todos',
+                    sentimento: sentiment || 'todos',
+                    aspecto: aspect || 'todos',
+                    periodo: period
+                });
+                
+                // Mostrar overlay de carregamento em todos os gráficos
+                $('.chart-container').each(function() {
+                    const $container = $(this);
+                    const $overlay = $('<div class="loading-overlay"><div class="spinner"></div></div>');
+                    $container.append($overlay);
+                    
+                    // Remover overlay após 1.5 segundos (simulação)
+                    setTimeout(function() {
+                        $overlay.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                    }, 1500);
+                });
+                
+                // Aqui você implementaria a chamada AJAX para atualizar os dados com base nos filtros
+            });
+            
+            // Botão para limpar filtros
+            $('#reset-filters').click(function() {
+                $('#filter-channel, #filter-sentiment, #filter-aspect').val('');
+                $('.time-filter').removeClass('active');
+                $('.time-filter[data-period="7"]').addClass('active');
+                $('#custom-date-range').slideUp();
+            });
+            
+            // Botão para fechar notificação no rodapé
+            $('.notification-close').click(function() {
+                $(this).closest('footer').fadeOut();
+            });
+        });
+
+        // Funções para exportar e ampliar gráficos
+        function exportarGrafico(id) {
+            let gd = document.getElementById(id);
+            Plotly.downloadImage(gd, {
+                format: 'png',
+                filename: 'ascend-' + id
+            });
+        }
+
+        function ampliarGrafico(id) {
+            let gd = document.getElementById(id);
+            Plotly.newPlot(
+                gd, 
+                gd.data, 
+                Object.assign({}, gd.layout, {
+                    width: window.innerWidth * 0.9,
+                    height: window.innerHeight * 0.8
+                }), 
+                {responsive: true}
+            );
+        }
+
+        // Renderizar gráficos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar erros ou dados ausentes
+            {% if erro or not graficos %}
+                console.log("Erro ou nenhum dado disponível para gráficos");
+            {% else %}
+                try {
+                    // Gráfico de pizza de sentimentos
+                    {% if graficos.sentimento_pie %}
+                        var pie_data = {{ graficos.sentimento_pie|safe }};
+                        // Melhorar o layout do gráfico
+                        if (pie_data && pie_data.layout) {
+                            pie_data.layout.title = null; // Remover título do gráfico (já está no card)
+                            pie_data.layout.height = 300;
+                            pie_data.layout.margin = { l: 30, r: 30, t: 10, b: 10 };
+                            pie_data.layout.legend = { orientation: "h", y: -0.15 };
+                            pie_data.layout.colorway = ['#2ecc71', '#f39c12', '#e74c3c']; // Verde, laranja, vermelho
+                            pie_data.layout.paper_bgcolor = 'rgba(0,0,0,0)';
+                            pie_data.layout.plot_bgcolor = 'rgba(0,0,0,0)';
+                        }
+                        // Melhorar o traço do gráfico
+                        if (pie_data && pie_data.data && pie_data.data.length > 0) {
+                            pie_data.data[0].hole = 0.4;
+                            pie_data.data[0].textinfo = 'percent';
+                            pie_data.data[0].hoverinfo = 'label+percent';
+                            pie_data.data[0].textfont = { size: 14, color: '#fff' };
+                        }
+                        Plotly.newPlot('sentimento-pie', pie_data.data, pie_data.layout, {responsive: true});
+                    {% endif %}
+                    
+                    // Gráfico de evolução temporal
+                    {% if graficos.sentimento_tempo %}
+                        var tempo_data = {{ graficos.sentimento_tempo|safe }};
+                        // Melhorar o layout do gráfico
+                        if (tempo_data && tempo_data.layout) {
+                            tempo_data.layout.title = null; // Remover título do gráfico
+                            tempo_data.layout.height = 300;
+                            tempo_data.layout.margin = { l: 50, r: 20, t: 10, b: 40 };
+                            tempo_data.layout.legend = { orientation: "h", y: -0.15 };
+                            tempo_data.layout.yaxis = { 
+                                title: 'Quantidade',
+                                gridcolor: 'rgba(0,0,0,0.1)'
+                            };
+                            tempo_data.layout.xaxis = { 
+                                title: 'Data',
+                                gridcolor: 'rgba(0,0,0,0.1)'
+                            }; // Adicionado o fechamento de chave e ponto-e-vírgula
+                        }
+                        Plotly.newPlot('sentimento-tempo', tempo_data.data, tempo_data.layout, {responsive: true});
+                    {% endif %}
+                    
+                    // Gráfico de palavras mais frequentes
+                    {% if graficos.palavras_top %}
+                        var palavras_data = {{ graficos.palavras_top|safe }};
+                        Plotly.newPlot('palavras-top', palavras_data.data, palavras_data.layout, {responsive: true});
+                    {% endif %}
+                    
+                    // Gráfico de radar de aspectos (novo)
+                    {% if graficos.aspectos_radar %}
+                        var radar_data = {{ graficos.aspectos_radar|safe }};
+                        Plotly.newPlot('aspectos-radar', radar_data.data, radar_data.layout, {responsive: true});
+                    {% endif %}
+                    
+                    // Gráfico de sentimento por aspecto (novo)
+                    {% if graficos.sentimento_por_aspecto %}
+                        var sentimento_aspecto_data = {{ graficos.sentimento_por_aspecto|safe }};
+                        Plotly.newPlot('sentimento-por-aspecto', sentimento_aspecto_data.data, sentimento_aspecto_data.layout, {responsive: true});
+                    {% endif %}
+                    
+                    // Gráfico de comparação de sentimentos original vs ponderado (novo)
+                    {% if graficos.comparacao_ponderacao %}
+                        setTimeout(function() {
+                            try {
+                                var comparacao_data = {{ graficos.comparacao_ponderacao|safe }};
+                                var element = document.getElementById('comparacao-ponderacao');
+                                
+                                if (element) {
+                                    element.style.height = '350px';
+                                    element.style.display = 'block';
+                                    Plotly.newPlot('comparacao-ponderacao', comparacao_data.data, comparacao_data.layout, {responsive: true});
+                                }
+                            } catch (err) {
+                                console.error("Erro ao renderizar gráfico de comparação:", err);
+                            }
+                        }, 500);
+                    {% endif %}
+                    
+                    // Gráfico de taxa de concordância (novo)
+                    {% if graficos.concordancia_pie %}
+                        setTimeout(function() {
+                            try {
+                                var concordancia_data = {{ graficos.concordancia_pie|safe }};
+                                var element = document.getElementById('concordancia-pie');
+                                
+                                if (element) {
+                                    element.style.height = '350px';
+                                    element.style.display = 'block';
+                                    Plotly.newPlot('concordancia-pie', concordancia_data.data, concordancia_data.layout, {responsive: true});
+                                }
+                            } catch (err) {
+                                console.error("Erro ao renderizar gráfico de concordância:", err);
+                            }
+                        }, 500);
+                    {% endif %}
+                } catch (e) {
+                    console.error("Erro ao renderizar gráficos:", e);
+                }
+            {% endif %}
+            
+            // Manter gráficos responsivos ao redimensionar a janela
+            window.onresize = function() {
+                var graphDivs = document.getElementsByClassName('chart-container');
+                for (var i = 0; i < graphDivs.length; i++) {
+                    Plotly.relayout(graphDivs[i], {
+                        'autosize': true
+                    });
+                }
+            };
+            
+            // Atualizar estatísticas com dados reais
+            {% if estatisticas %}
+                // As estatísticas agora são renderizadas diretamente no HTML
+                console.log("Estatísticas carregadas com sucesso");
+            {% endif %}
+        });
+    </script>
+    
+    <!-- Script de depuração -->
+    <script src="{{ url_for('static', filename='debug.js') }}"></script>
+    
+    <!-- Script de correção para gráficos -->
+    <script src="{{ url_for('static', filename='dashboard-fix.js') }}"></script>
+</body>
+</html> 

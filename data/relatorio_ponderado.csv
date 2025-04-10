@@ -1,0 +1,108 @@
+timestamp,texto,sentimento_original,valor_modelo,valor_cliente,media_ponderada,peso_cliente_original,peso_modelo_original,peso_cliente_normalizado,peso_modelo_normalizado,sentimento_ponderado,concordancia_cliente_modelo
+2025-03-29 18:28:45,Adorei o produto! Chegou rápido e a qualidade é excelente. Recomendo a todos!,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-03-29 18:28:53,Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.,negativo,1,2,1.2727272727272727,30,80,27.27272727272727,72.72727272727273,negativo,False
+2025-03-29 18:37:22,está escutando,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-03-29 18:38:22,Adorei o produto! Chegou rápido e a qualidade é excelente. Recomendo a todos!,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-03-29 18:38:48,"Não gostei do produto, e a entrega foi muito lenta.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 18:48:46,Entrega dentro do prazo,positivo,3,2,2.727272727272727,30,80,27.27272727272727,72.72727272727273,positivo,False
+2025-03-29 18:48:56,Entregou,neutro,2,1,1.7272727272727273,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-03-29 18:50:06,"Produto normal, nada excepcional. Entrega no prazo e o atendimento foi correto. Preço justo.",neutro,2,3,2.2727272727272725,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-03-29 20:16:02,"Não gostei da compra, a entrega foi lenta e o produto é ruim.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 20:16:35,"Gostei da compra, a entrega foi rápido. Tudo certo",positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-03-29 20:18:28,a compra Acho que a entrega foi rápido,positivo,3,2,2.727272727272727,30,80,27.27272727272727,72.72727272727273,positivo,False
+2025-03-29 20:18:50,da compra chega entrega foi rápida tudo certo,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-03-29 20:24:27,não gostei do produto entrega lenta não gostei da compra,negativo,1,2,1.2727272727272727,30,80,27.27272727272727,72.72727272727273,negativo,False
+2025-03-29 20:27:45,"Compra, mediana. Entrega fraca",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 20:28:26,"Compra mediana, entrega não foi lenta.",neutro,2,1,1.7272727272727273,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-03-29 20:29:05,"Compra mediana, entrega não demorou.",neutro,2,1,1.7272727272727273,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-03-29 20:49:49,a entrega foi muito ruim não gostei da compra achei que foi muito lento não gostei,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 20:50:19,Gostei da compra a entrega foi rápido tudo muito bom gostei,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-03-29 20:51:01,produto muito bom porém a entrega teve,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-03-29 20:51:21,produto foi ilegal porém não estou satisfeito com entrega,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 20:51:48,é bom porém não estou satisfeito com a entrega,neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-03-29 20:53:01,Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 21:13:47,feira compra mas a entrega não foi tão rápida poderia ser melhor,neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-03-29 21:14:48,Não quero comentar sobre a compra.,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 21:21:01,"O ventilador é elogiado por ser potente, bonito e silencioso, proporcionando um vento forte que alcança longas distâncias. Destaca-se também pelo excelente custo-benefício e facilidade de instalação, sendo robusto e aparentando durabilidade. No entanto, alguns usuários mencionam que ele pode ser um pouco barulhento na velocidade máxima.",positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-03-29 21:21:46,"Produto bem frágil. Não tem alça para a movimentação do produto. O motor aquece bastante.
+",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 21:23:58,"Tem um bom custo-befeficio. É silencioso considerando o tamanho, e tem um vento forte. Mas o material é muito ruim, plástico mole, não tem firmeza e o juste de inclinação não suporta o próprio peso, então só possivel direcionar o vento pra frente, pois a trava não aguenta a inclinação pra cima.",neutro,2,1,1.7272727272727273,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-03-29 21:37:25,"Já conhecia o produto e é um dos meus preferidos. Comprei por está com um preço muito bom, só que não sei o que estar acontecendo que este que comprei não tem a fixação dos outros que comprei e depois de 1 hora já não sinto cheiro de nada. Muito triste ",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 21:38:03,"A duração do cheiro é pouquíssimos, após 1h nem sinto mais o cheiro",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 21:40:28,Produto não fixa tanto como os que já comprei anteriormente,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-29 23:00:08,Testando a analise e sentimento,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-03-29 23:39:36,não gostei do produto,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-30 00:00:37,Não entendi o que você disse.,neutro,2,1,1.7272727272727273,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-03-30 00:00:53,eu não gostei do produto,negativo,1,2,1.2727272727272727,30,80,27.27272727272727,72.72727272727273,negativo,False
+2025-03-30 00:04:28,eu não gostei do produto,negativo,1,2,1.2727272727272727,30,80,27.27272727272727,72.72727272727273,negativo,False
+2025-03-30 00:04:56,eu não gostei do produto,neutro,2,3,2.2727272727272725,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-03-30 00:05:32,Amei o produto e a entrega super rapida.,neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-03-30 00:12:58,"Nao gostei do produto, mas a entrega foi boa.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-30 00:12:58,"Nao gostei do produto, mas a entrega foi boa.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-30 00:13:56,"Não gostei do produto, mas entrega foi boa.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-30 00:13:56,"Não gostei do produto, mas entrega foi boa.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-30 00:18:02,"Não gostei do produto, mas entrega foi boa.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-30 00:18:02,"Não gostei do produto, mas entrega foi boa.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-30 00:29:46,Não entendi o que você disse.,neutro,2,3,2.2727272727272725,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-03-30 00:30:19,Não entendi o que você disse.,neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-03-30 00:42:06,um dois três testando,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-03-30 00:50:36,e o produto é ruim,neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-04-03 22:26:52,Eu nao gostei,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-03 22:28:28,Achei q o perfume fosse melhor… mas achei muito suave pelo preço.,neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-04-03 22:28:54,É muito gostoso o cheiro. Porém não ten nem um mês que comprei e já está acabando. Quase não fixa na pele e pra eh sentir o cheiro tenho q colocar bastante na roupa.,neutro,2,1,1.7272727272727273,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-04-03 22:29:42,"Na curiosidade em saber se o perfume la nuit tresor lancome era bom, acabei comprando e, realmente fiquei impactada. Extremamente marcante. Excelente aquisição.
+",positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-04-03 22:30:08,"Nota mil de 10 😍 apaixonada, perfume doce, marcante, sensual, um cheiro viciante! amei 🥰🫶.",positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-04-03 22:47:31,"A ENTREGA FOI BOA, POREM O PRODUTO É FRÁGIL",neutro,2,3,2.2727272727272725,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-04-04 21:38:52,"Não gostei do produto, e a entrega foi muito ruim.",negativo,1,2,1.2727272727272727,30,80,27.27272727272727,72.72727272727273,negativo,False
+2025-04-04 21:41:18,"Gostei do produto, e a entrega foi muito rápida.",neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-04-04 21:41:18,"Gostei do produto, e a entrega foi muito rápida.",neutro,2,3,2.2727272727272725,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-04-04 21:48:37,"Não gostei do produto, e a entrega foi muito lenta.",positivo,3,2,2.727272727272727,30,80,27.27272727272727,72.72727272727273,positivo,False
+2025-04-04 21:48:37,"Não gostei do produto, e a entrega foi muito lenta.",positivo,3,2,2.727272727272727,30,80,27.27272727272727,72.72727272727273,positivo,False
+2025-04-06 13:43:49,"Tem um bom custo-befeficio. É silencioso considerando o tamanho, e tem um vento forte. Mas o material é muito ruim, plástico mole, não tem firmeza e o juste de inclinação não suporta o próprio peso, então só possivel direcionar o vento pra frente, pois a trava não aguenta a inclinação pra cima.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 13:44:24,Mc testando 1 2 3,neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-04-06 13:44:37,sair do produto porém achei entrega muito lenta,neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-04-06 14:13:39,Adorei o produto! Chegou rápido e a qualidade é excelente. Recomendo a todos!,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-04-06 14:51:04,Adorei o produto! Chegou rápido e a qualidade é excelente. Recomendo a todos!,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-04-06 16:03:43,não gostei da compra e entrega demorou muito,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:03:52,não gostei da compra e entrega demorou muito,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:03:52,não gostei da compra e entrega demorou muito,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:15:12,Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:20:45,A empresa entregou o produto com qualidade excelente. O atendimento foi ótimo e o preço justo. Recomendo a marca para todos.,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-04-06 16:21:34,"O produto é bom, mas a entrega demorou muito mais do que o prometido. Isso deixou muito a desejar.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:22:03,Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.,negativo,1,2,1.2727272727272727,30,80,27.27272727272727,72.72727272727273,negativo,False
+2025-04-06 16:22:52,"O produto é bom, mas a entrega demorou muito mais do que o prometido. Isso deixou muito a desejar.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:28:31,"O produto é bom, mas a entrega demorou muito mais do que o prometido. Isso deixou muito a desejar.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:30:58,"O produto é bom, mas a entrega demorou muito mais do que o prometido. Isso deixou muito a desejar.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:31:16,Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.,negativo,1,2,1.2727272727272727,30,80,27.27272727272727,72.72727272727273,negativo,False
+2025-04-06 16:32:47,Muito linda a botina mas deixou um pouquinho a desejar no conforto! mas super recomendo.,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-04-06 16:33:17,Meu produto não veio igual a propaganda. Outra coisa um dos pez está menor e pegando muito no peito do pé incomodando muito. Fora isso é muito bom.,positivo,3,3,3.0,30,80,27.27272727272727,72.72727272727273,positivo,True
+2025-04-06 16:34:10,"Produto de qualidade baixa. Pro dia a dia não serve, não aguenta.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:34:37,"Forma pequena muito dura incomoda o pé não consegui ficar nem parte da manhã calçada com ela.
+",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:35:02,Não gostei do material. Tem uma acabamento muito mal feito!!. Cheio de cola nas laterais.,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:35:44,Na foto é uma coisa quando chega é muito diferente.,neutro,2,1,1.7272727272727273,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-04-06 16:36:08,"Longe de ser o produto anunciado, apesar de ter pego um número maior ficou extremamente apertado porém fácil de resolver para lacer o couro e só aquecer com o secador e colocar no pé até esfriar uma vez que o couro lacea pois esfriar ele não volta a ficar apertado o problema foi que a palmilha encolheu a ponto de ficar uma palmilha infantil.
+",negativo,1,2,1.2727272727272727,30,80,27.27272727272727,72.72727272727273,negativo,False
+2025-04-06 16:36:49,Muito apertada forma pequena.,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:37:14,"Bonita e confortável porem, durou apenas 1 mês e rasgou a sola, eu trabalho eu um mercado, não é uma trabalho tão pesado para durar tão pouco. Então não comprarei novamente e não. Recomendo comprarem!!!.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:38:20," bota e boa, mas veio sem palmilha, acho um erro desconsertante, porque agora terei de ir comprar a palmilha para usar.",negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:42:31,deu errado,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:42:43,entrega demorou,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:48:36,não gostei do produto e achei que a entrega foi muito le,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:49:01,e achei que entrega foi muito le,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:49:17,eu não gostei do produto e achei que a entrega foi muito le,negativo,1,2,1.2727272727272727,30,80,27.27272727272727,72.72727272727273,negativo,False
+2025-04-06 16:49:52,eu não gostei do produto e achei que entrega foi muito,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:50:14,lenta,neutro,2,1,1.7272727272727273,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-04-06 16:50:31,eu não gostei do produto e achei que a entrega foi muito le,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:55:25,duto e a entrega foi muito lenta,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:55:40,eu não gostei do produto e entrega foi muito,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:55:59,eu não gostei do produto e a entrega foi muito lenta,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:56:17,eu não gostei do produto e a entrega foi muito,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:56:41,eu não gostei do produto e entrega foi muito lenta,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:57:24,a moto é boa mas veio sem palmilha acha um erro desconcertante porque agora teria ido comprar palmilha para ela usar,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:57:47,tu não vem com o bico de aço para proteção e nem o capacete,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:58:06,produto não veio com um bico de aço e nem,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True
+2025-04-06 16:58:22,tu não viu com um bico de aço e nem o capacete,neutro,2,1,1.7272727272727273,30,80,27.27272727272727,72.72727272727273,neutro,False
+2025-04-06 16:58:38,produto não veio com bico de aço e nem o capacete,neutro,2,2,2.0,30,80,27.27272727272727,72.72727272727273,neutro,True
+2025-04-06 17:32:38,Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.,negativo,1,1,1.0,30,80,27.27272727272727,72.72727272727273,negativo,True

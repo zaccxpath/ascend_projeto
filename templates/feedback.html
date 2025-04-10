@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Font Awesome para ícones -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <!-- CSS customizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <title>ASCEND - Feedback Inteligente</title>
+    <style>
+      /* Estilos para as etapas do formulário */
+      .step {
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .step.active {
+        display: block;
+        opacity: 1;
+      }
+      .star {
+        cursor: pointer;
+        font-size: 1.8rem;
+        margin: 0 5px;
+        transition: transform 0.2s;
+      }
+      .star:hover {
+        transform: scale(1.1);
+      }
+      .star.filled {
+        color: #ffc107;
+      }
+      /* Estilos para as ondas de gravação */
+      .wave {
+        width: 4px;
+        background-color: #007bff;
+        margin: 0 2px;
+        animation: pulse 1s infinite alternate;
+      }
+      @keyframes pulse {
+        from { height: 10px; }
+        to { height: 30px; }
+      }
+      /* Indicadores de etapa */
+      .step-indicator div {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        line-height: 40px;
+        text-align: center;
+        color: #fff;
+        transition: all 0.3s ease;
+      }
+      .step-indicator div.bg-primary {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+      }
+      /* Gráficos para insights */
+      .chart-bar {
+        height: 200px;
+        display: flex;
+        align-items: flex-end;
+      }
+      .chart-bar-item {
+        flex: 1;
+        margin: 0 5px;
+        background-color: #6610f2;
+        border-radius: 4px 4px 0 0;
+        transition: height 0.5s ease, opacity 0.5s ease;
+      }
+      .progress-topic {
+        height: 10px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+      }
+      /* Sugestões de texto */
+      .suggestion-chip {
+        display: inline-block;
+        padding: 4px 10px;
+        margin: 5px;
+        background-color: #f0f0f0;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .suggestion-chip:hover {
+        background-color: #e0e0e0;
+        transform: translateY(-2px);
+      }
+      /* Cabeçalho gradiente */
+      .header-gradient {
+        background: linear-gradient(to right, #007bff, #6610f2);
+        color: white;
+        padding: 20px;
+        border-radius: 5px 5px 0 0;
+      }
+      /* Estilos para feedbacks similares */
+      .feedback-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        transition: transform 0.2s;
+      }
+      .feedback-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+      }
+      /* Efeitos para botões de emoção */
+      .emotion-btn {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+      }
+      .emotion-btn:hover {
+        transform: translateY(-5px);
+      }
+      .emotion-btn.active {
+        transform: scale(1.05);
+        border-color: #007bff;
+      }
+      /* Estilo para contagem regressiva */
+      .countdown {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #007bff;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100;
+        animation: pulse 0.5s infinite alternate;
+        display: none;
+      }
+    </style>
+    
+    <!-- Script movido para o cabeçalho para carregar antes do HTML -->
+    <script>
+      // Variáveis de estado
+      var currentStep = 1;
+      var selectedEmotion = null;
+      var selectedRating = 0;
+      var selectedTags = [];
+      var feedbackText = "";
+      var isRecording = false;
+      var feedbackAnalysis = null;
+
+      // Função para exibir a etapa desejada
+      function showStep(step) {
+        console.log("Alterando para etapa:", step);
+        document.querySelectorAll('.step').forEach(function(div) {
+          div.classList.remove('active');
+        });
+        
+        if (step === 'summary') {
+          document.getElementById('stepSummary').classList.add('active');
+          // Esconda os indicadores de etapa no resumo
+          document.querySelector('.step-indicator').style.display = 'none';
+        } else {
+          document.getElementById('step' + step).classList.add('active');
+          document.querySelector('.step-indicator').style.display = 'flex';
+          currentStep = step;
+          // Atualiza os indicadores de etapa
+          for (var i = 1; i <= 4; i++) {
+            var indicator = document.getElementById('indicator' + i);
+            if (i === parseInt(step)) {
+              indicator.classList.remove('bg-secondary');
+              indicator.classList.add('bg-primary');
+            } else {
+              indicator.classList.remove('bg-primary');
+              indicator.classList.add('bg-secondary');
+            }
+          }
+        }
+      }
+
+      // Função para selecionar emoção
+      function selectEmotion(emotion) {
+        console.log("Emoção selecionada:", emotion);
+        selectedEmotion = emotion;
+        document.querySelectorAll('.emotion-btn').forEach(function(b) {
+          b.classList.remove('active', 'border-primary');
+        });
+        document.getElementById('emotion-' + emotion).classList.add('active', 'border', 'border-primary');
+        setTimeout(function() { 
+          showStep(2);
+        }, 300);
+      }
+
+      // Função para selecionar avaliação
+      function selectRating(rating) {
+        console.log("Rating selecionado:", rating);
+        selectedRating = rating;
+        document.querySelectorAll('.star').forEach(function(s) {
+          var value = parseInt(s.getAttribute('data-value'));
+          if (value <= selectedRating) {
+            s.classList.remove('far');
+            s.classList.add('fas', 'filled');
+          } else {
+            s.classList.remove('fas', 'filled');
+            s.classList.add('far');
+          }
+        });
+      }
+
+      // Função para ir para etapa 3
+      function goToStep3() {
+        if (selectedRating > 0) {
+          showStep(3);
+        } else {
+          alert("Selecione uma avaliação!");
+        }
+      }
+
+      // Função para alternar tag
+      function toggleTag(tag) {
+        console.log("Tag alternada:", tag);
+        var btn = document.querySelector('.tag-btn[data-tag="' + tag + '"]');
+        if (selectedTags.includes(tag)) {
+          selectedTags = selectedTags.filter(function(t) { 
+            return t !== tag; 
+          });
+          btn.classList.remove('active');
+        } else {
+          selectedTags.push(tag);
+          btn.classList.add('active');
+        }
+      }
+
+      // Função para ir para etapa 4
+      function goToStep4() {
+        showStep(4);
+        updateSuggestions();
+      }
+
+      // Função para atualizar sugestões baseadas nas tags selecionadas
+      function updateSuggestions() {
+        var suggestionsContainer = document.getElementById('suggestions');
+        suggestionsContainer.innerHTML = '';
+        
+        if (selectedTags.length > 0) {
+          var suggestionsLabel = document.createElement('small');
+          suggestionsLabel.className = 'text-muted';
+          suggestionsLabel.textContent = 'Sugestões:';
+          suggestionsContainer.appendChild(suggestionsLabel);
+          
+          if (selectedTags.includes('delivery')) {
+            addSuggestion('Falar sobre prazo de entrega', 'A entrega chegou ');
+          }
+          
+          if (selectedTags.includes('quality')) {
+            addSuggestion('Avaliar qualidade', 'A qualidade do produto é ');
+          }
+          
+          if (selectedTags.includes('price')) {
+            addSuggestion('Mencionar preço', 'O preço do produto é ');
+          }
+          
+          if (selectedTags.includes('service')) {
+            addSuggestion('Avaliar atendimento', 'O atendimento foi ');
+          }
+        }
+      }
+      
+      function addSuggestion(text, insertText) {
+        var chip = document.createElement('span');
+        chip.className = 'suggestion-chip';
+        chip.textContent = text;
+        chip.addEventListener('click', function() {
+          var textarea = document.getElementById('feedbackText');
+          textarea.value += (textarea.value ? " " : "") + insertText;
+          textarea.focus();
+        });
+        document.getElementById('suggestions').appendChild(chip);
+      }
+
+      // Verifica permissão de microfone
+      async function checkMicrophonePermission() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+            return true;
+        } catch (error) {
+            console.error('Erro ao acessar microfone:', error);
+            return false;
+        }
+      }
+
+      // Função para iniciar contagem regressiva
+      async function iniciarContagem() {
+        // Verifica permissão do microfone antes de iniciar
+        const hasMicPermission = await checkMicrophonePermission();
+        if (!hasMicPermission) {
+            alert('Erro: Permissão para microfone negada! Por favor, permita o acesso ao microfone no seu navegador e tente novamente.');
+            return;
+        }
+        
+        // Desabilita o botão durante a contagem
+        const button = document.getElementById('startRecording');
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-hourglass-half"></i> Preparando...';
+        
+        // Elemento para contagem regressiva
+        const countdownElement = document.getElementById('countdown');
+        countdownElement.style.display = 'block';
+        
+        // Contagem regressiva de 3 segundos
+        countdownElement.innerText = '3';
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        countdownElement.innerText = '2';
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        countdownElement.innerText = '1';
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        countdownElement.innerText = 'VAI!';
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Esconder o elemento de contagem regressiva
+        countdownElement.style.display = 'none';
+        
+        // Iniciar a gravação
+        startVoiceRecording();
+      }
+
+      // Função para gravação de voz real usando a API Flask
+      function startVoiceRecording() {
+        if (isRecording) return;
+        
+        isRecording = true;
+        var btn = document.getElementById('startRecording');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-microphone-slash"></i> Gravando...';
+        document.getElementById('recordingWaves').style.display = 'flex';
+        
+        // Chamando a API de reconhecimento de voz do Flask
+        fetch('/ouvir', { 
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+            source: 'feedback_form'
+            })
+        })
+        .then(function(response) { 
+            return response.json(); 
+        })
+        .then(function(data) {
+            isRecording = false;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-microphone"></i> Gravar Voz';
+            document.getElementById('recordingWaves').style.display = 'none';
+            
+            // Usando o texto retornado pela API de reconhecimento de voz
+            if (data.texto) {
+            var feedbackField = document.getElementById('feedbackText');
+            feedbackField.value += (feedbackField.value ? " " : "") + data.texto;
+            
+            // Se vier com análise de sentimento, podemos considerar selecionar emoção automaticamente
+            if (data.sentimento && !selectedEmotion) {
+                var emotionMap = {
+                'positivo': 'happy',
+                'neutro': 'neutral',
+                'negativo': 'sad'
+                };
+                if (emotionMap[data.sentimento]) {
+                // Opcional: pré-selecionar emoção baseada na análise de sentimento
+                // selectEmotion(emotionMap[data.sentimento]);
+                }
+            }
+            } else {
+            alert("Não foi possível capturar o áudio. Por favor, tente novamente.");
+            }
+            
+            console.log("Resposta da API de reconhecimento de voz:", data);
+        })
+        .catch(function(error) {
+            isRecording = false;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-microphone"></i> Gravar Voz';
+            document.getElementById('recordingWaves').style.display = 'none';
+            
+            console.error("Erro ao acessar o reconhecimento de voz:", error);
+            alert("Erro ao acessar o reconhecimento de voz. Verifique sua conexão e permissões de microfone.");
+        });
+      }
+        
+      // Função para enviar feedback
+    function submitFeedback() {
+    feedbackText = document.getElementById('feedbackText').value.trim();
+    if (feedbackText === "") {
+        alert("Por favor, insira seu feedback.");
+        return;
+    }
+    
+    // Mostrar indicador de carregamento
+    var submitButton = document.getElementById('toSubmit');
+    var originalButtonText = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+    
+    // Enviar para API do Flask para análise de sentimento
+    try {
+        fetch("{{ url_for('feedback_api') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            texto: feedbackText,
+            rating: selectedRating,
+            emotion: selectedEmotion,
+            tags: selectedTags
+        })
+        })
+        .then(function(response) { 
+        return response.json(); 
+        })
+        .then(function(data) {
+        console.log("Resposta do servidor:", data);
+        
+        // Usar a análise de sentimento do servidor
+        feedbackAnalysis = {
+            texto: feedbackText,
+            sentimento: data.analise.sentimento,
+            compound: data.analise.compound,
+            topicos: selectedTags.map(function(tag) {
+            switch(tag) {
+                case 'price': return 'Preço';
+                case 'quality': return 'Qualidade';
+                case 'delivery': return 'Entrega';
+                case 'service': return 'Atendimento';
+                case 'product': return 'Produto';
+                default: return tag;
+            }
+            })
+        };
+        
+        // Adicionar tópicos da análise se disponíveis
+        if (data.analise.topicos && data.analise.topicos.length > 0) {
+            feedbackAnalysis.topicos = feedbackAnalysis.topicos.concat(data.analise.topicos);
+        }
+        
+        // Mostrar resumo e insights
+        showStep('summary');
+        renderFeedbackSummary();
+        
+        // Exibe os insights após um pequeno delay
+        setTimeout(function() {
+            document.getElementById('insightsSection').style.display = 'block';
+        }, 1000);
+        
+        // Restaurar botão
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+        
+        // Salvar o feedback no histórico
+        try {
+            salvarNoHistorico({
+            texto: feedbackText,
+            rating: selectedRating,
+            emotion: selectedEmotion,
+            tags: selectedTags
+            }, data.analise);
+        } catch (savErr) {
+            console.error("Erro ao salvar no histórico:", savErr);
+        }
+        })
+        .catch(function(err) {
+        console.error("Erro ao enviar feedback:", err);
+        alert("Ocorreu um erro ao processar seu feedback. Tente novamente.");
+        
+        // Restaurar botão
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+        });
+    } catch (err) {
+        console.error("Erro ao enviar feedback:", err);
+        alert("Erro ao enviar feedback. Verifique sua conexão de internet.");
+        
+        // Restaurar botão
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+    }
+    }
+
+    // Função para salvar feedback diretamente no histórico e CSV
+    function salvarNoHistorico(feedback, analise) {
+    // Objeto para envio ao servidor
+    var dadosSalvar = {
+        tipo: 'salvar_feedback',
+        feedback: feedback,
+        analise: analise,
+        timestamp: new Date().toISOString()
+    };
+
+    // Opções da requisição
+    var opcoes = {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dadosSalvar)
+    };
+
+    // Rota para salvar o feedback
+    var url = '/api/salvar_historico';
+
+    // Realizar a requisição
+    fetch(url, opcoes)
+        .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Erro ao salvar feedback: ' + response.status);
+        }
+        return response.json();
+        })
+        .then(function(data) {
+        console.log('Feedback salvo com sucesso:', data);
+        // Opcionalmente, mostrar uma notificação ao usuário
+        mostarNotificacao('Feedback salvo com sucesso!', 'success');
+        })
+        .catch(function(error) {
+        console.error('Erro ao salvar feedback:', error);
+        // Notificar o usuário sobre o erro
+        mostarNotificacao('Erro ao salvar feedback. Tente novamente.', 'error');
+        
+        // Tentar salvar localmente como fallback
+        salvarLocalmente(feedback, analise);
+        });
+    }
+
+    // Função para mostrar notificação ao usuário
+    function mostarNotificacao(mensagem, tipo) {
+    // Criar elemento de notificação
+    var notificacao = document.createElement('div');
+    notificacao.className = 'notificacao notificacao-' + tipo;
+    notificacao.innerHTML = mensagem;
+    
+    // Adicionar ao body
+    document.body.appendChild(notificacao);
+    
+    // Animar entrada
+    setTimeout(function() {
+        notificacao.classList.add('mostrar');
+    }, 10);
+    
+    // Remover após alguns segundos
+    setTimeout(function() {
+        notificacao.classList.remove('mostrar');
+        setTimeout(function() {
+        document.body.removeChild(notificacao);
+        }, 500);
+    }, 3000);
+    }
+
+    // Fallback para salvar localmente se a API falhar
+    function salvarLocalmente(feedback, analise) {
+    try {
+        // Obter feedbacks existentes ou iniciar novo array
+        var feedbacksSalvos = JSON.parse(localStorage.getItem('ascend_feedbacks') || '[]');
+        
+        // Adicionar novo feedback
+        feedbacksSalvos.push({
+        timestamp: new Date().toISOString(),
+        feedback: feedback,
+        analise: analise
+        });
+        
+        // Salvar de volta no localStorage
+        localStorage.setItem('ascend_feedbacks', JSON.stringify(feedbacksSalvos));
+        
+        console.log('Feedback salvo localmente como fallback');
+        mostarNotificacao('Feedback salvo localmente. Sincronizaremos mais tarde.', 'warning');
+        
+        // Configurar sincronização futura quando o servidor estiver disponível
+        configurarSincronizacao();
+    } catch (e) {
+        console.error('Erro ao salvar localmente:', e);
+        mostarNotificacao('Não foi possível salvar seu feedback. Tente novamente mais tarde.', 'error');
+    }
+    }
+
+    // Configurar tentativa de sincronização futura
+    function configurarSincronizacao() {
+    // Verificar se já existe um listener de sincronização
+    if (!window.hasOwnProperty('sincronizacaoConfigurada')) {
+        window.sincronizacaoConfigurada = true;
+        
+        // Tentar sincronizar ao retornar online
+        window.addEventListener('online', function() {
+        sincronizarFeedbacksLocais();
+        });
+        
+        // Tentar sincronizar periodicamente
+        setInterval(function() {
+        if (navigator.onLine) {
+            sincronizarFeedbacksLocais();
+        }
+        }, 5 * 60 * 1000); // Tentar a cada 5 minutos
+    }
+    }
+
+    // Função para sincronizar feedbacks salvos localmente
+    function sincronizarFeedbacksLocais() {
+    try {
+        var feedbacksLocais = JSON.parse(localStorage.getItem('ascend_feedbacks') || '[]');
+        
+        if (feedbacksLocais.length === 0) {
+        return; // Nada para sincronizar
+        }
+        
+        console.log('Tentando sincronizar', feedbacksLocais.length, 'feedbacks locais');
+        
+        // Enviar feedbacks locais para o servidor
+        fetch('/api/sincronizar_feedbacks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ feedbacks: feedbacksLocais })
+        })
+        .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Falha na sincronização');
+        }
+        return response.json();
+        })
+        .then(function(data) {
+        if (data.success) {
+            // Limpar feedbacks locais após sincronização bem-sucedida
+            localStorage.removeItem('ascend_feedbacks');
+            console.log('Feedbacks sincronizados com sucesso:', data);
+            mostarNotificacao('Seus feedbacks foram sincronizados.', 'success');
+        }
+        })
+        .catch(function(error) {
+        console.error('Erro ao sincronizar feedbacks:', error);
+        });
+    } catch (e) {
+        console.error('Erro ao processar sincronização:', e);
+    }
+    }
+
+    // Adicionar estilos para notificações
+    function adicionarEstilosNotificacao() {
+    var style = document.createElement('style');
+    style.textContent = `
+        .notificacao {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 4px;
+        color: white;
+        font-weight: 500;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        z-index: 9999;
+        transform: translateY(30px);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .notificacao.mostrar {
+        transform: translateY(0);
+        opacity: 1;
+        }
+        
+        .notificacao-success {
+        background-color: #2ecc71;
+        }
+        
+        .notificacao-error {
+        background-color: #e74c3c;
+        }
+        
+        .notificacao-warning {
+        background-color: #f39c12;
+        }
+    `;
+    document.head.appendChild(style);
+    }
+
+    // Função de simulação de câmera
+    function simulateCamera() {
+    alert('Funcionalidade de upload de imagens será implementada em breve!');
+    }
+
+      // Função para renderizar o resumo do feedback
+      function renderFeedbackSummary() {
+        var sentimentScore = feedbackAnalysis.compound * 100;
+        var sentimentDescription =
+          sentimentScore >= 50 ? "muito positivo" :
+          sentimentScore >= 10 ? "positivo" :
+          sentimentScore >= -10 ? "neutro" :
+          sentimentScore >= -50 ? "negativo" : "muito negativo";
+        
+        // Renderiza estrelas no resumo
+        var summaryStars = document.getElementById('summaryStars');
+        summaryStars.innerHTML = '';
+        for (var i = 1; i <= 5; i++) {
+          var star = document.createElement('i');
+          star.className = i <= selectedRating ? 'fas fa-star text-warning' : 'far fa-star text-muted';
+          star.style.fontSize = '14px';
+          summaryStars.appendChild(star);
+        }
+        
+        // Conteúdo principal do resumo
+        var emotionText = 
+          selectedEmotion === 'happy' ? 'Satisfeito' : 
+          selectedEmotion === 'neutral' ? 'Neutro' : 'Insatisfeito';
+        
+        var summaryHTML = `
+          <div class="p-3 bg-light rounded mb-3">
+            <p class="mb-0">${feedbackText}</p>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p><strong>Emoção:</strong> ${emotionText}</p>
+            </div>
+            <div class="col-md-6">
+              <p><strong>Avaliação:</strong> ${selectedRating} estrela(s)</p>
+            </div>
+          </div>
+        `;
+        document.getElementById("summaryContent").innerHTML = summaryHTML;
+        
+        // Exibe o sentimento detectado
+        document.getElementById("sentimentResult").textContent = sentimentDescription;
+        
+        // Renderiza as palavras-chave/tópicos
+        var keywordsList = document.getElementById('keywordsList');
+        keywordsList.innerHTML = '';
+        feedbackAnalysis.topicos.forEach(function(topic) {
+          var badge = document.createElement('span');
+          badge.className = 'badge badge-light mr-2 p-2';
+          badge.textContent = topic;
+          keywordsList.appendChild(badge);
+        });
+      }
+
+      // Função para reiniciar o formulário
+      function resetForm() {
+        // Limpar todos os estados
+        selectedEmotion = null;
+        selectedRating = 0;
+        selectedTags = [];
+        feedbackText = "";
+        isRecording = false;
+        feedbackAnalysis = null;
+        
+        // Limpar UI
+        document.getElementById("feedbackText").value = "";
+        document.querySelectorAll(".emotion-btn").forEach(function(btn) {
+          btn.classList.remove("active", "border", "border-primary");
+        });
+        document.querySelectorAll(".tag-btn").forEach(function(btn) {
+          btn.classList.remove("active");
+        });
+        document.querySelectorAll(".star").forEach(function(s) {
+          s.classList.remove("fas", "filled", "text-warning");
+          s.classList.add("far");
+        });
+        
+        // Esconder seção de insights
+        document.getElementById('insightsSection').style.display = 'none';
+        
+        // Voltar para primeira etapa
+        showStep(1);
+      }
+      
+      // Inicialização - feita com window.onload para garantir que todos os elementos da página estejam carregados
+      window.onload = function() {
+        console.log("Página carregada, inicializando aplicação...");
+        
+        // Esconder seção de insights inicialmente
+        document.getElementById('insightsSection').style.display = 'none';
+        
+        // Configuração de event listeners para efeito hover nas estrelas
+        document.querySelectorAll('.star').forEach(function(star) {
+          // Efeito hover
+          star.addEventListener('mouseover', function() {
+            var hoverValue = parseInt(this.getAttribute('data-value'));
+            document.querySelectorAll('.star').forEach(function(s) {
+              var value = parseInt(s.getAttribute('data-value'));
+              if (value <= hoverValue) {
+                s.classList.add('text-warning');
+              }
+            });
+          });
+          
+          star.addEventListener('mouseout', function() {
+            document.querySelectorAll('.star').forEach(function(s) {
+              var value = parseInt(s.getAttribute('data-value'));
+              if (value > selectedRating) {
+                s.classList.remove('text-warning');
+              }
+            });
+          });
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <header class="header-gradient mb-4 text-center">
+      <h1>ASCEND</h1>
+      <p>Análise de Sentimentos Cognitiva para Experiência do Cliente</p>
+    </header>
+
+    <div class="container">
+      <!-- Menu de Navegação -->
+      <nav class="mb-4">
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link" href="/"><i class="fas fa-microphone"></i> Gravador</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/historico"><i class="fas fa-history"></i> Histórico</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/dashboard"><i class="fas fa-chart-bar"></i> Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/adicionar"><i class="fas fa-plus"></i> Adicionar Feedback</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/feedback"><i class="fas fa-edit"></i> Feedback Detalhado</a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="card main-card shadow">
+        <div class="card-body">
+          <!-- Indicadores de Etapa -->
+          <div class="d-flex justify-content-around mb-4 step-indicator">
+            <div id="indicator1" class="bg-primary">1</div>
+            <div id="indicator2" class="bg-secondary">2</div>
+            <div id="indicator3" class="bg-secondary">3</div>
+            <div id="indicator4" class="bg-secondary">4</div>
+          </div>
+          <!-- Container do Formulário Multi‑Etapas -->
+          <div id="feedback-form">
+            <!-- Etapa 1: Seleção de Emoção -->
+            <div id="step1" class="step active">
+              <h2 class="mb-3 text-center">Como você se sentiu com sua experiência?</h2>
+              <div class="d-flex justify-content-center">
+                <button type="button" id="emotion-happy" class="btn btn-light m-2 p-3 emotion-btn" data-emotion="happy" onclick="selectEmotion('happy')">
+                  <i class="fas fa-smile-beam fa-2x"></i><br>Satisfeito
+                </button>
+                <button type="button" id="emotion-neutral" class="btn btn-light m-2 p-3 emotion-btn" data-emotion="neutral" onclick="selectEmotion('neutral')">
+                  <i class="fas fa-meh fa-2x"></i><br>Neutro
+                </button>
+                <button type="button" id="emotion-sad" class="btn btn-light m-2 p-3 emotion-btn" data-emotion="sad" onclick="selectEmotion('sad')">
+                  <i class="fas fa-frown fa-2x"></i><br>Insatisfeito
+                </button>
+              </div>
+            </div>
+
+            <!-- Etapa 2: Avaliação com Estrelas -->
+            <div id="step2" class="step">
+              <h2 class="mb-3 text-center">Avalie sua satisfação geral</h2>
+              <div class="d-flex justify-content-center mb-3" id="star-rating">
+                <i class="far fa-star star" data-value="1" onclick="selectRating(1)"></i>
+                <i class="far fa-star star" data-value="2" onclick="selectRating(2)"></i>
+                <i class="far fa-star star" data-value="3" onclick="selectRating(3)"></i>
+                <i class="far fa-star star" data-value="4" onclick="selectRating(4)"></i>
+                <i class="far fa-star star" data-value="5" onclick="selectRating(5)"></i>
+              </div>
+              <div class="text-center mt-4">
+                <button type="button" id="toStep3" class="btn btn-primary" onclick="goToStep3()">Continuar</button>
+              </div>
+            </div>
+
+            <!-- Etapa 3: Seleção de Tópicos -->
+            <div id="step3" class="step">
+              <h2 class="mb-3 text-center">Sobre o que você quer falar?</h2>
+              <div class="d-flex flex-wrap justify-content-center">
+                <button type="button" class="btn btn-outline-primary m-1 tag-btn" data-tag="price" onclick="toggleTag('price')">
+                  Preço
+                </button>
+                <button type="button" class="btn btn-outline-primary m-1 tag-btn" data-tag="quality" onclick="toggleTag('quality')">
+                  Qualidade
+                </button>
+                <button type="button" class="btn btn-outline-primary m-1 tag-btn" data-tag="delivery" onclick="toggleTag('delivery')">
+                  Entrega
+                </button>
+                <button type="button" class="btn btn-outline-primary m-1 tag-btn" data-tag="service" onclick="toggleTag('service')">
+                  Atendimento
+                </button>
+                <button type="button" class="btn btn-outline-primary m-1 tag-btn" data-tag="product" onclick="toggleTag('product')">
+                  Produto
+                </button>
+              </div>
+              <div class="text-center mt-4">
+                <button type="button" id="toStep4" class="btn btn-primary" onclick="goToStep4()">Continuar</button>
+              </div>
+            </div>
+
+            <!-- Etapa 4: Feedback Detalhado com Voz e Texto -->
+            <div id="step4" class="step">
+              <h2 class="mb-3 text-center">Conte sua experiência</h2>
+              <div class="form-group position-relative">
+                <textarea id="feedbackText" class="form-control" rows="5" placeholder="Digite ou grave seu feedback..."></textarea>
+                <div class="position-absolute" style="right: 10px; bottom: 10px;">
+                  <button type="button" class="btn btn-sm btn-light" id="cameraButton" onclick="simulateCamera()">
+                    <i class="fas fa-camera"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Sugestões dinâmicas baseadas nas tags -->
+              <div id="suggestions" class="mb-3"></div>
+
+              <!-- Elemento para contagem regressiva -->
+              <div id="countdown" class="countdown"></div>
+
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <button type="button" id="startRecording" class="btn btn-outline-danger" onclick="iniciarContagem()">
+                  <i class="fas fa-microphone"></i> Gravar Voz
+                </button>
+                <button type="button" id="toSubmit" class="btn btn-primary" onclick="submitFeedback()">
+                  <i class="fas fa-paper-plane"></i> Enviar Feedback
+                </button>
+              </div>
+
+              <!-- Área de animação das ondas durante gravação -->
+              <div id="recordingWaves" class="d-flex justify-content-center align-items-end mt-3" style="height: 40px; display: none;">
+                <div class="wave"></div>
+                <div class="wave" style="animation-delay: 0.1s"></div>
+                <div class="wave" style="animation-delay: 0.2s"></div>
+                <div class="wave" style="animation-delay: 0.3s"></div>
+              </div>
+            </div>
+
+            <!-- Etapa 5: Resumo do Feedback e Insights -->
+            <div id="stepSummary" class="step">
+              <div class="card mb-4">
+                <div class="card-header bg-light">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="m-0">Resumo do seu feedback</h3>
+                    <div id="summaryStars"></div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div id="summaryContent"></div>
+                  
+                  <div class="row mt-4">
+                    <div class="col-md-6">
+                      <div class="p-3 bg-light rounded">
+                        <h5 class="text-muted">Sentimento detectado</h5>
+                        <p class="text-primary font-weight-bold" id="sentimentResult">-</p>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="p-3 bg-light rounded">
+                        <h5 class="text-muted">Tempo de resposta</h5>
+                        <p class="text-success font-weight-bold">24-48 horas</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="mt-3">
+                    <h5 class="text-muted">Palavras-chave</h5>
+                    <div id="keywordsList" class="mt-2"></div>
+                  </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                  <button type="button" id="newFeedback" class="btn btn-outline-primary" onclick="resetForm()">
+                    <i class="fas fa-plus-circle"></i> Novo feedback
+                  </button>
+                  <button type="button" class="btn btn-outline-success">
+                    <i class="fas fa-thumbs-up"></i> Útil
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Insights da comunidade -->
+              <div id="insightsSection" class="card mt-4">
+                <div class="card-header bg-light">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="m-0">Insights da comunidade</h3>
+                    <i class="fas fa-chart-line"></i>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <!-- Gráfico de evolução de satisfação -->
+                    <div class="col-md-6 mb-4">
+                      <h5 class="text-muted mb-3">Evolução da satisfação</h5>
+                      <div class="chart-bar">
+                        <div class="chart-bar-item" style="height: 70%"></div>
+                        <div class="chart-bar-item" style="height: 65%"></div>
+                        <div class="chart-bar-item" style="height: 75%"></div>
+                        <div class="chart-bar-item" style="height: 80%"></div>
+                        <div class="chart-bar-item" style="height: 85%"></div>
+                      </div>
+                      <div class="d-flex justify-content-between mt-2 text-muted">
+                        <span>Jan</span>
+                        <span>Fev</span>
+                        <span>Mar</span>
+                        <span>Abr</span>
+                        <span>Mai</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Tópicos principais -->
+                    <div class="col-md-6 mb-4">
+                      <h5 class="text-muted mb-3">Principais tópicos</h5>
+                      
+                      <div>
+                        <div class="d-flex justify-content-between">
+                            <span>Entrega atrasada</span>
+                            <span class="font-weight-bold">42%</span>
+                          </div>
+                          <div class="progress progress-topic">
+                            <div class="progress-bar bg-primary" style="width: 42%"></div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div class="d-flex justify-content-between">
+                            <span>Qualidade do produto</span>
+                            <span class="font-weight-bold">28%</span>
+                          </div>
+                          <div class="progress progress-topic">
+                            <div class="progress-bar bg-primary" style="width: 28%"></div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div class="d-flex justify-content-between">
+                            <span>Atendimento</span>
+                            <span class="font-weight-bold">19%</span>
+                          </div>
+                          <div class="progress progress-topic">
+                            <div class="progress-bar bg-primary" style="width: 19%"></div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div class="d-flex justify-content-between">
+                            <span>Preço</span>
+                            <span class="font-weight-bold">11%</span>
+                          </div>
+                          <div class="progress progress-topic">
+                            <div class="progress-bar bg-primary" style="width: 11%"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Feedbacks recentes similares -->
+                    <div class="mt-2">
+                      <h5 class="text-muted mb-3">Feedbacks recentes similares</h5>
+                      
+                      <div class="feedback-card">
+                        <div class="d-flex justify-content-between mb-2">
+                          <div class="d-flex align-items-center">
+                            <div class="user-avatar bg-info text-white mr-2">M</div>
+                            <span class="font-weight-medium">Maria S.</span>
+                          </div>
+                          <div class="d-flex align-items-center">
+                            <div class="mr-2">
+                              <i class="fas fa-star text-warning"></i>
+                              <i class="fas fa-star text-warning"></i>
+                              <i class="fas fa-star text-warning"></i>
+                              <i class="fas fa-star text-warning"></i>
+                              <i class="far fa-star text-muted"></i>
+                            </div>
+                            <small class="text-muted">2 dias atrás</small>
+                          </div>
+                        </div>
+                        <p class="mb-0">Produto de ótima qualidade, mas a entrega demorou mais que o previsto.</p>
+                      </div>
+                      
+                      <div class="feedback-card">
+                        <div class="d-flex justify-content-between mb-2">
+                          <div class="d-flex align-items-center">
+                            <div class="user-avatar bg-success text-white mr-2">J</div>
+                            <span class="font-weight-medium">João P.</span>
+                          </div>
+                          <div class="d-flex align-items-center">
+                            <div class="mr-2">
+                              <i class="fas fa-star text-warning"></i>
+                              <i class="fas fa-star text-warning"></i>
+                              <i class="fas fa-star text-warning"></i>
+                              <i class="fas fa-star text-warning"></i>
+                              <i class="far fa-star text-muted"></i>
+                            </div>
+                            <small class="text-muted">4 dias atrás</small>
+                          </div>
+                        </div>
+                        <p class="mb-0">Excelente produto! Só achei que poderia ter chegado um pouco antes.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="mt-4 text-center text-muted">
+        <p>ASCEND - Análise de Sentimentos Cognitiva para Experiência do Cliente | Projeto Disruptivo</p>
+      </footer>
+    </body>
+  </html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>ASCEND - Demo Interativa</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --neutral-color: #95a5a6;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav-tabs {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--dark-color);
+            font-weight: 500;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.25rem 0.25rem 0 0;
+            transition: all 0.2s;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            font-weight: 600;
+        }
+
+        .main-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .recorder-section {
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .btn-record {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .btn-record:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-record i {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .wave-container {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin: 2rem 0;
+        }
+
+        .wave {
+            width: 4px;
+            height: 20px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .recording .wave {
+            animation: wave 1s infinite;
+        }
+
+        @keyframes wave {
+            0% { height: 20px; }
+            50% { height: 60px; }
+            100% { height: 20px; }
+        }
+
+        .result-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--light-color);
+            border-radius: 8px;
+        }
+
+        .sentiment-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 1rem 0;
+        }
+
+        .sentiment-badge i {
+            margin-right: 0.5rem;
+        }
+
+        .sentiment-positive {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .sentiment-negative {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .sentiment-neutral {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .dashboard-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-card h3 {
+            color: var(--dark-color);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card .metric-icon {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            font-size: 2.5rem;
+            opacity: 0.2;
+            color: var(--primary-color);
+        }
+
+        .metric-card .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-card .metric-label {
+            font-size: 0.9rem;
+            color: var(--neutral-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .historico-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .historico-item {
+            padding: 1rem;
+            border-left: 4px solid;
+            margin-bottom: 1rem;
+            background-color: white;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .historico-item.positivo {
+            border-left-color: var(--success-color);
+        }
+
+        .historico-item.negativo {
+            border-left-color: var(--danger-color);
+        }
+
+        .historico-item.neutro {
+            border-left-color: var(--warning-color);
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 3rem;
+        }
+
+        .info-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .feature i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>PROJETO ASCEND</h1>
+            <p>Sistema de Análise de Sentimentos com Reconhecimento de Voz</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav class="mb-4">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#"><i class="fas fa-microphone"></i> Gravador</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#historico"><i class="fas fa-history"></i> Histórico</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#dashboard"><i class="fas fa-chart-bar"></i> Dashboard</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="main-card">
+            <h2 class="text-center mb-4">Gravador de Voz</h2>
+            
+            <div class="recorder-section">
+                <button id="recordButton" class="btn-record">
+                    <i class="fas fa-microphone"></i>
+                    <span>Gravar</span>
+                </button>
+                
+                <div class="wave-container" id="waveContainer">
+                    <!-- Ondas serão adicionadas via JavaScript -->
+                </div>
+                
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h3>Transcrição:</h3>
+                    <p id="transcricao"></p>
+                    
+                    <div id="sentimentResult">
+                        <h3>Análise de Sentimento:</h3>
+                        <div id="sentimentBadge" class="sentiment-badge"></div>
+                        <p id="sentimentDetails"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Métricas em Tempo Real</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <i class="fas fa-chart-line metric-icon"></i>
+                    <div class="metric-value" id="totalAnalises">0</div>
+                    <div class="metric-label">Total de Análises</div>
+                </div>
+                <div class="metric-card">
+                    <i class="fas fa-smile metric-icon"></i>
+                    <div class="metric-value" id="taxaPositividade">0%</div>
+                    <div class="metric-label">Taxa de Positividade</div>
+                </div>
+                <div class="metric-card">
+                    <i class="fas fa-check-circle metric-icon"></i>
+                    <div class="metric-value" id="confiancaMedia">0%</div>
+                    <div class="metric-label">Confiança Média</div>
+                </div>
+            </div>
+            
+            <div id="sentimentChart" style="height: 400px;"></div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Histórico de Análises</h3>
+            <div class="historico-list" id="historico"></div>
+        </div>
+
+        <div class="info-card">
+            <h3>Sobre o Projeto ASCEND</h3>
+            <p>
+                O projeto ASCEND transforma voz em insights valiosos através de análise de sentimentos.
+                Ideal para coletar feedback de clientes e melhorar a experiência de compra!
+            </p>
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-microphone-alt"></i>
+                    <span>Gravação por Voz</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Análise de Sentimentos</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Insights Acionáveis</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>ASCEND - Análise de Sentimentos Cognitiva para Experiência do Cliente | Projeto Disruptivo</p>
+    </footer>
+
+    <script>
+        // Configuração inicial
+        const waveContainer = document.getElementById('waveContainer');
+        const recordButton = document.getElementById('recordButton');
+        const resultSection = document.getElementById('resultSection');
+        let isRecording = false;
+
+        // Criar ondas
+        for (let i = 0; i < 30; i++) {
+            const wave = document.createElement('div');
+            wave.className = 'wave';
+            waveContainer.appendChild(wave);
+        }
+
+        // Simulação de gravação
+        recordButton.addEventListener('click', () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        function startRecording() {
+            isRecording = true;
+            waveContainer.classList.add('recording');
+            recordButton.innerHTML = '<i class="fas fa-stop"></i><span>Parar</span>';
+            recordButton.style.backgroundColor = 'var(--danger-color)';
+            
+            // Simular gravação por 5 segundos
+            setTimeout(() => {
+                if (isRecording) {
+                    stopRecording();
+                }
+            }, 5000);
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            waveContainer.classList.remove('recording');
+            recordButton.innerHTML = '<i class="fas fa-microphone"></i><span>Gravar</span>';
+            recordButton.style.backgroundColor = '';
+            
+            // Simular transcrição
+            const textos = [
+                "Estou muito satisfeito com o serviço prestado",
+                "O atendimento foi excelente e rápido",
+                "Não gostei da demora no processamento",
+                "O sistema é muito intuitivo e fácil de usar",
+                "Precisa melhorar a interface do usuário"
+            ];
+            
+            const texto = textos[Math.floor(Math.random() * textos.length)];
+            mostrarResultado(texto);
+        }
+
+        function mostrarResultado(texto) {
+            resultSection.style.display = 'block';
+            document.getElementById('transcricao').textContent = texto;
+            
+            // Análise de sentimento
+            const palavrasPositivas = ['satisfeito', 'excelente', 'rápido', 'intuitivo', 'fácil'];
+            const palavrasNegativas = ['não gostei', 'demora', 'melhorar', 'precisa'];
+            
+            let scorePositivo = 0;
+            let scoreNegativo = 0;
+            
+            palavrasPositivas.forEach(palavra => {
+                if (texto.toLowerCase().includes(palavra)) scorePositivo++;
+            });
+            
+            palavrasNegativas.forEach(palavra => {
+                if (texto.toLowerCase().includes(palavra)) scoreNegativo++;
+            });
+            
+            let sentimento, classe, confianca;
+            
+            if (scorePositivo > scoreNegativo) {
+                sentimento = 'Positivo';
+                classe = 'sentiment-positive';
+                confianca = Math.round((scorePositivo / (scorePositivo + scoreNegativo)) * 100);
+            } else if (scoreNegativo > scorePositivo) {
+                sentimento = 'Negativo';
+                classe = 'sentiment-negative';
+                confianca = Math.round((scoreNegativo / (scorePositivo + scoreNegativo)) * 100);
+            } else {
+                sentimento = 'Neutro';
+                classe = 'sentiment-neutral';
+                confianca = 50;
+            }
+            
+            const badge = document.getElementById('sentimentBadge');
+            badge.className = `sentiment-badge ${classe}`;
+            badge.innerHTML = `<i class="fas fa-${sentimento === 'Positivo' ? 'smile' : sentimento === 'Negativo' ? 'frown' : 'meh'}"></i>${sentimento}`;
+            
+            document.getElementById('sentimentDetails').textContent = `Confiança: ${confianca}%`;
+            
+            atualizarMetricas(sentimento, confianca);
+            atualizarGrafico(sentimento);
+            adicionarAoHistorico(texto, sentimento, confianca);
+        }
+
+        // Métricas e gráficos
+        let totalAnalises = 0;
+        let analisePositivas = 0;
+        let somaConfianca = 0;
+        let dadosGrafico = {
+            positivo: 0,
+            neutro: 0,
+            negativo: 0
+        };
+
+        function atualizarMetricas(sentimento, confianca) {
+            totalAnalises++;
+            if (sentimento === 'Positivo') analisePositivas++;
+            somaConfianca += confianca;
+
+            document.getElementById('totalAnalises').textContent = totalAnalises;
+            document.getElementById('taxaPositividade').textContent = 
+                Math.round((analisePositivas / totalAnalises) * 100) + '%';
+            document.getElementById('confiancaMedia').textContent = 
+                Math.round(somaConfianca / totalAnalises) + '%';
+        }
+
+        function atualizarGrafico(sentimento) {
+            dadosGrafico[sentimento.toLowerCase()]++;
+            
+            const data = [{
+                values: Object.values(dadosGrafico),
+                labels: ['Positivo', 'Neutro', 'Negativo'],
+                type: 'pie',
+                marker: {
+                    colors: ['var(--success-color)', 'var(--warning-color)', 'var(--danger-color)']
+                }
+            }];
+            
+            const layout = {
+                height: 400,
+                margin: { t: 0, b: 0, l: 0, r: 0 }
+            };
+            
+            Plotly.newPlot('sentimentChart', data, layout);
+        }
+
+        function adicionarAoHistorico(texto, sentimento, confianca) {
+            const historico = document.getElementById('historico');
+            const entry = document.createElement('div');
+            entry.className = `historico-item ${sentimento.toLowerCase()}`;
+            entry.innerHTML = `
+                <p><strong>Texto:</strong> "${texto}"</p>
+                <p><strong>Sentimento:</strong> ${sentimento}</p>
+                <p><strong>Confiança:</strong> ${confianca}%</p>
+            `;
+            historico.insertBefore(entry, historico.firstChild);
+        }
+
+        // Inicialização do gráfico
+        const layout = {
+            height: 400,
+            margin: { t: 0, b: 0, l: 0, r: 0 }
+        };
+        
+        Plotly.newPlot('sentimentChart', [{
+            values: [0, 0, 0],
+            labels: ['Positivo', 'Neutro', 'Negativo'],
+            type: 'pie',
+            marker: {
+                colors: ['var(--success-color)', 'var(--warning-color)', 'var(--danger-color)']
+            }
+        }], layout);
+    </script>
+</body>
+</html> 

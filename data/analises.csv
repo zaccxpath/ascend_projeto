@@ -1,0 +1,49 @@
+timestamp,texto,compound,negativo,neutro,positivo,sentimento,topicos,aspectos_detectados,aspecto_principal
+2025-03-22 01:25:18,"Minha dúvida foi respondida rapidamente pelo chat, atendimento nota 10!",0.8411814091187917,0.0,0.1588185908812083,0.8411814091187917,positivo,ótimo,"preço, entrega, atendimento",preço
+2025-04-06 14:34:18,As opções de pagamento são ótimas e o processo foi muito tranquilo.,0.8939929644400275,0.0,0.1060070355599724,0.8939929644400275,positivo,"ótimo, satisfeito","preço, empresa",preço
+2025-02-14 03:29:18,Comprei pela segunda vez e continuo impressionado com a qualidade dos produtos desta empresa.,0.6045784848470956,0.0,0.3954215151529043,0.6045784848470956,positivo,ótimo,"empresa, produto",empresa
+2025-02-13 15:31:18,"A entrega foi super rápida, chegou antes do prazo estimado. Estou muito satisfeito!",0.9903905974967266,0.0,0.0096094025032733,0.9903905974967266,positivo,"rápido, recomendo, satisfeito","preço, empresa",preço
+2025-03-24 21:44:18,"Atendimento horrível, o vendedor foi grosseiro e não soube responder minhas dúvidas.",-0.5308184955471265,0.5308184955471265,0.4691815044528735,0.0,negativo,"defeito, ruim, péssimo","entrega, preço",entrega
+2025-04-06 13:30:18,Comprei pela segunda vez e continuo impressionado com a qualidade dos produtos desta empresa.,0.6001492991928403,0.0,0.3998507008071597,0.6001492991928403,positivo,qualidade,"entrega, atendimento, produto",entrega
+2025-03-09 04:56:18,Essa foi minha última compra nessa loja. Decepcionado com o tratamento recebido.,-0.9155863873465472,0.9155863873465472,0.0844136126534529,0.0,negativo,lento,"entrega, preço",entrega
+2025-02-16 20:46:18,A descrição do produto no site é enganosa. Não corresponde ao que recebi.,-0.799051427398928,0.799051427398928,0.200948572601072,0.0,negativo,lento,"empresa, entrega",empresa
+2025-02-27 16:18:18,"A qualidade do produto é o que eu esperava, nada além disso.",0.1099296871115971,0.0266879299675597,0.9466241400648804,0.0266879299675597,neutro,"comum, esperado","preço, empresa",preço
+2025-04-03 23:09:18,Péssima experiência! O produto veio com defeito e o suporte não me ajudou.,-0.968415629472315,0.968415629472315,0.031584370527685,0.0,negativo,insatisfeito,"preço, produto, atendimento",preço
+2025-02-20 22:05:18,Produto conforme descrito. Ainda estou testando.,-0.0087593181321724,0.189671559261089,0.6206568814778218,0.189671559261089,neutro,"comum, normal","atendimento, preço",atendimento
+2025-02-15 10:15:18,"A qualidade do produto é o que eu esperava, nada além disso.",-0.1432518887392949,0.0480035619018896,0.9039928761962208,0.0480035619018896,neutro,ok,produto,produto
+2025-03-09 13:06:18,"A qualidade do produto é o que eu esperava, nada além disso.",0.0654366597099742,0.016176792704618,0.967646414590764,0.016176792704618,neutro,"regular, ok, comum",entrega,entrega
+2025-03-27 09:02:18,"Minha dúvida foi respondida rapidamente pelo chat, atendimento nota 10!",0.8798162971947092,0.0,0.1201837028052907,0.8798162971947092,positivo,"rápido, perfeito",empresa,empresa
+2025-02-16 22:37:18,Essa foi minha última compra nessa loja. Decepcionado com o tratamento recebido.,-0.8708393730281306,0.8708393730281306,0.1291606269718693,0.0,negativo,lento,"entrega, empresa, atendimento",entrega
+2025-03-21 11:28:18,Demorou muito mais do que o previsto para a entrega. Muito insatisfeito.,-0.997018967038592,0.997018967038592,0.002981032961408,0.0,negativo,horrível,"preço, produto",preço
+2025-03-20 15:00:18,A descrição do produto no site é enganosa. Não corresponde ao que recebi.,-0.8480451050209363,0.8480451050209363,0.1519548949790636,0.0,negativo,horrível,"atendimento, produto, preço",atendimento
+2025-03-27 09:49:18,A embalagem veio impecável e o produto sem nenhum arranhão. Parabéns pelo cuidado!,0.8622171964436984,0.0,0.1377828035563015,0.8622171964436984,positivo,"excelente, perfeito, recomendo",atendimento,atendimento
+2025-03-27 22:14:18,Achei o produto ok. Atende às necessidades básicas.,0.0844766457305557,0.1279057627283027,0.7441884745433945,0.1279057627283027,neutro,normal,"produto, preço, atendimento",produto
+2025-02-14 18:23:18,"Produto de primeira linha, recomendo a todos!",0.5490999723571439,0.0,0.4509000276428561,0.5490999723571439,positivo,"ótimo, rápido, satisfeito","entrega, produto",entrega
+2025-04-08 14:06:18,Péssima experiência! O produto veio com defeito e o suporte não me ajudou.,-0.6607555486599659,0.6607555486599659,0.3392444513400341,0.0,negativo,"horrível, defeito","empresa, produto",empresa
+2025-02-20 03:23:18,"A entrega foi super rápida, chegou antes do prazo estimado. Estou muito satisfeito!",0.5394949635405699,0.0,0.4605050364594301,0.5394949635405699,positivo,"satisfeito, qualidade, perfeito",empresa,empresa
+2025-03-28 13:06:18,Comprei pela segunda vez e continuo impressionado com a qualidade dos produtos desta empresa.,0.55082539881722,0.0,0.4491746011827799,0.55082539881722,positivo,"recomendo, satisfeito","empresa, produto",empresa
+2025-03-20 05:58:18,"A entrega foi super rápida, chegou antes do prazo estimado. Estou muito satisfeito!",0.8152081016608124,0.0,0.1847918983391876,0.8152081016608124,positivo,recomendo,empresa,empresa
+2025-03-04 02:28:18,As opções de pagamento são ótimas e o processo foi muito tranquilo.,0.8219261935795794,0.0,0.1780738064204206,0.8219261935795794,positivo,"rápido, qualidade, satisfeito","entrega, empresa",entrega
+2025-04-05 11:38:18,Atendimento excelente! O vendedor foi muito atencioso e me ajudou a escolher o produto certo.,0.5664059585176568,0.0,0.4335940414823431,0.5664059585176568,positivo,"recomendo, ótimo, rápido","preço, empresa, atendimento",preço
+2025-02-25 04:57:18,"A entrega foi super rápida, chegou antes do prazo estimado. Estou muito satisfeito!",0.85040898831067,0.0,0.1495910116893299,0.85040898831067,positivo,qualidade,preço,preço
+2025-02-12 17:44:18,Adorei o produto! A qualidade é excepcional e o preço está ótimo.,0.9974411293133836,0.0,0.0025588706866164,0.9974411293133836,positivo,"satisfeito, recomendo","entrega, atendimento",entrega
+2025-03-24 23:22:18,Péssima experiência! O produto veio com defeito e o suporte não me ajudou.,-0.7283627391758443,0.7283627391758443,0.2716372608241557,0.0,negativo,"ruim, péssimo",atendimento,atendimento
+2025-02-17 10:39:18,A embalagem veio toda danificada e o produto arranhado.,-0.8669895070518652,0.8669895070518652,0.1330104929481348,0.0,negativo,"ruim, problema","entrega, produto",entrega
+2025-04-07 16:41:03,"A qualidade do produto é o que eu esperava, nada além disso.",0.7348285913467407,0.0,0.0,0.7348285913467407,positivo,"qualidade,produto,esperava",produto,produto
+2025-04-07 16:48:49,eu não gostei da compra e achei que entrega demorou muito,-0.8292334675788879,0.8292334675788879,0.0,0.0,negativo,"gostei,compra,achei","empresa,entrega",empresa
+2025-04-07 19:06:06,mas entrega muito demorada,0.0,0.0,1.0,0.0,neutro,"entrega,demorada",entrega,entrega
+2025-04-07 19:07:00,produto muito frágil e entrega foi demorada e o atendimento foi péssimo,-0.7,0.7,0.0,0.0,negativo,"produto,frágil,entrega","produto,entrega,atendimento",produto
+2025-04-07 19:32:56,Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.,-0.7,0.7,0.0,0.0,negativo,"atendimento,péssimo,produto","produto,empresa,atendimento",produto
+2025-04-07 19:37:45,Oi entrega demorada,0.0,0.0,1.0,0.0,neutro,"oi,entrega,demorada",entrega,entrega
+2025-04-07 19:38:02,produto ruim entrega demorada,-0.7,0.7,0.0,0.0,negativo,"produto,ruim,entrega","produto,entrega",produto
+2025-04-07 20:11:07,muito frágil porém entrega foi excelente antes antes do previsto,0.0,0.0,1.0,0.0,neutro,"frágil,porém,entrega",entrega,entrega
+2025-04-07 21:00:16,"Produto normal, nada excepcional. Entrega no prazo e o atendimento foi correto. Preço justo.",0.0,0.0,1.0,0.0,neutro,"produto,normal,nada","produto,preço,entrega,atendimento",entrega
+2025-04-07 21:19:59,Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.,-0.7,0.7,0.0,0.0,negativo,"atendimento,péssimo,produto","produto,empresa,atendimento",produto
+2025-04-07 21:20:29,Adorei o produto! Chegou rápido e a qualidade é excelente. Recomendo a todos!,0.7,0.0,0.0,0.7,positivo,"adorei,produto,chegou","produto,entrega",produto
+2025-04-07 21:21:18,Gostei da compra e a entrega foi muito rápida,0.7,0.0,0.0,0.7,positivo,"gostei,compra,entrega","empresa,entrega",empresa
+2025-04-07 21:21:42,não gostei da compra e a entrega demorou muito,-0.7,0.7,0.0,0.0,negativo,"gostei,compra,entrega","empresa,entrega",empresa
+2025-04-07 22:46:01,Atendimento péssimo! O produto veio com defeito e não quiseram trocar. Nunca mais compro nessa loja.,-0.9,0.9,0.1,0.0,negativo,"atendimento,péssimo,produto","produto,empresa,atendimento",produto
+2025-04-07 22:47:09,é bom porém a entrega demorou muito,-0.6996492147445679,0.6996492147445679,0.0,0.0,negativo,"bom,porém,entrega",entrega,entrega
+2025-04-07 22:47:35,padaria compra e entrega foi muito rápido,0.735849142074585,0.0,0.0,0.735849142074585,positivo,"padaria,compra,entrega","empresa,entrega",entrega
+2025-04-07 22:47:56,Madureira compra e a entrega foi muito rápido,0.81134432554245,0.0,0.0,0.81134432554245,positivo,"madureira,compra,entrega","empresa,entrega",entrega
+2025-04-08 08:16:35,"Produto normal, nada excepcional. Entrega no prazo e o atendimento foi correto. Preço justo.",0.7706075310707092,0.0,0.0,0.7706075310707092,positivo,"produto,normal,nada","produto,preço,entrega,atendimento",entrega

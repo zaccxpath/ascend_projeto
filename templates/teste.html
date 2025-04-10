@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCEND - Análise de Sentimentos Cognitiva para Experiência do Cliente</title>
+    <!-- Dependências CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Estilos Gerais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f6f8;
+            color: #2c3e50;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #2980b9, #2c3e50);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+            animation: floating-text 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes floating-text {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+
+        /* Container Principal */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            list-style: none;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 1.5rem;
+            padding: 0;
+        }
+
+        .nav-item {
+            margin-bottom: -1px;
+        }
+
+        .nav-link {
+            display: inline-block;
+            padding: 0.75rem 1.25rem;
+            border: 1px solid transparent;
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover:not(.active) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .nav-link.active {
+            color: #2980b9;
+            border-color: #dee2e6 #dee2e6 #fff;
+            border-bottom: 2px solid #2980b9;
+            font-weight: 600;
+        }
+
+        /* Cards */
+        .main-card {
+            background-color: white;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .main-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            color: #2980b9;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #2980b9;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Seção do Gravador */
+        .recorder-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-record {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #2980b9, #2c3e50);
+            color: #fff;
+            font-size: 18px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(41, 128, 185, 0.3);
+            margin-bottom: 1rem;
+            flex-direction: column;
+        }
+
+        .btn-record i {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-record:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(41, 128, 185, 0.4);
+        }
+
+        .btn-record:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .status-text {
+            font-size: 1.1rem;
+            color: #2980b9;
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+
+        /* Visualização de Ondas */
+        .wave-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            height: 100px;
+            margin: 2rem 0;
+        }
+
+        .wave {
+            width: 4px;
+            height: 20px;
+            background-color: #3498db;
+            border-radius: 2px;
+            transition: height 0.2s;
+        }
+
+        .recording .wave {
+            animation: wave-animation 1s infinite;
+        }
+
+        @keyframes wave-animation {
+            0% { height: 20px; }
+            50% { height: 60px; }
+            100% { height: 20px; }
+        }
+
+        /* Seção de Resultado */
+        .result-section {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .result-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        /* Cartões de Estatísticas */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            opacity: 0.2;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            gap: 0.25rem;
+        }
+
+        .stat-trend-up {
+            color: #2ecc71;
+        }
+
+        .stat-trend-down {
+            color: #e74c3c;
+        }
+
+        /* Análise de Sentimento */
+        .sentiment-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 1rem 0;
+        }
+
+        .sentiment-positive {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .sentiment-negative {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .sentiment-neutral {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-link {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Seção de Histórico */
+        .history-section {
+            display: none;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .history-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+        }
+
+        .history-date {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Seção de Dashboard */
+        .dashboard-section {
+            display: none;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2980b9;
+        }
+
+        .metric-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Seção de Feedback */
+        .feedback-section, .feedback-detail-section {
+            display: none;
+        }
+
+        .feedback-form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #2980b9;
+            box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.2);
+            outline: none;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #2980b9, #2c3e50);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(41, 128, 185, 0.2);
+        }
+
+        /* Tabela de Feedback */
+        .feedback-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .feedback-table th,
+        .feedback-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .feedback-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .feedback-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .feedback-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        .tag-atendimento { background: #e3f2fd; color: #1976d2; }
+        .tag-produto { background: #f3e5f5; color: #7b1fa2; }
+        .tag-entrega { background: #e8f5e9; color: #388e3c; }
+        .tag-sistema { background: #fff3e0; color: #f57c00; }
+
+        .feedback-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-pendente { background: #f39c12; }
+        .status-analise { background: #3498db; }
+        .status-concluido { background: #2ecc71; }
+
+        /* Melhorias para Feedback Detalhado */
+        .feedback-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .feedback-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-status {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .priority-alta {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .priority-media {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .priority-baixa {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .feedback-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .feedback-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-mini-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-mini-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2980b9;
+        }
+
+        .stat-mini-label {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>PROJETO ASCEND</h1>
+        <p>Análise de Sentimentos Cognitiva para Experiência do Cliente</p>
+    </header>
+
+    <div class="container">
+        <nav>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#recorder" data-section="recorder-section">
+                        <i class="fas fa-microphone"></i> Gravador
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#history" data-section="history-section">
+                        <i class="fas fa-history"></i> Histórico
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#dashboard" data-section="dashboard-section">
+                        <i class="fas fa-chart-bar"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#add-feedback" data-section="feedback-section">
+                        <i class="fas fa-plus-circle"></i> Adicionar Feedback
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#feedback-detail" data-section="feedback-detail-section">
+                        <i class="fas fa-comments"></i> Feedback Detalhado
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Seção do Gravador -->
+        <div class="main-card recorder-section" style="display: block;">
+            <h2 class="card-title">Gravador de Voz</h2>
+            
+            <div class="recorder-section">
+                <button id="recordButton" class="btn-record">
+                    <i class="fas fa-microphone"></i>
+                    <span>Gravar</span>
+                </button>
+                
+                <div class="wave-container" id="waveContainer">
+                    <!-- Ondas serão adicionadas via JavaScript -->
+                </div>
+                
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <h3>Transcrição:</h3>
+                    <p id="transcricao"></p>
+                    
+                    <div id="sentimentResult">
+                        <h3>Análise de Sentimento:</h3>
+                        <div id="sentimentBadge" class="sentiment-badge"></div>
+                        <p id="sentimentDetails"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Histórico -->
+        <div class="main-card history-section">
+            <h2 class="card-title">Histórico de Análises</h2>
+            <ul class="history-list" id="historyList">
+                <!-- Histórico será preenchido via JavaScript -->
+            </ul>
+        </div>
+
+        <!-- Seção de Dashboard -->
+        <div class="main-card dashboard-section">
+            <h2 class="card-title">Dashboard de Análises</h2>
+            
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalAnalysesMetric">0</div>
+                    <div class="metric-label">Total de Análises</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="positiveRateMetric">0%</div>
+                    <div class="metric-label">Taxa de Positividade</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="avgConfidenceMetric">0%</div>
+                    <div class="metric-label">Confiança Média</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="sentimentChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Seção de Adicionar Feedback -->
+        <div class="main-card feedback-section">
+            <h2 class="card-title">Adicionar Novo Feedback</h2>
+            <form class="feedback-form" id="feedbackForm">
+                <div class="form-group">
+                    <label class="form-label">Nome do Cliente</label>
+                    <input type="text" class="form-control" id="clientName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-control" id="feedbackCategory" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="atendimento">Atendimento</option>
+                        <option value="produto">Produto</option>
+                        <option value="entrega">Entrega</option>
+                        <option value="sistema">Sistema</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Feedback</label>
+                    <textarea class="form-control" id="feedbackText" rows="5" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Prioridade</label>
+                    <select class="form-control" id="feedbackPriority" required>
+                        <option value="baixa">Baixa</option>
+                        <option value="media">Média</option>
+                        <option value="alta">Alta</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-submit">Enviar Feedback</button>
+            </form>
+        </div>
+
+        <!-- Seção de Feedback Detalhado -->
+        <div class="main-card feedback-detail-section">
+            <h2 class="card-title">Feedback Detalhado</h2>
+
+            <!-- Estatísticas Rápidas -->
+            <div class="feedback-stats">
+                <div class="stat-mini-card">
+                    <div class="stat-mini-value" id="totalFeedbacks">0</div>
+                    <div class="stat-mini-label">Total de Feedbacks</div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-value" id="pendingFeedbacks">0</div>
+                    <div class="stat-mini-label">Pendentes</div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-value" id="highPriorityFeedbacks">0</div>
+                    <div class="stat-mini-label">Alta Prioridade</div>
+                </div>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-value" id="resolvedFeedbacks">0</div>
+                    <div class="stat-mini-label">Resolvidos</div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="feedback-filters">
+                <div class="form-group">
+                    <label class="form-label">Filtrar por Status</label>
+                    <select class="form-control" id="statusFilter">
+                        <option value="">Todos</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="analise">Em Análise</option>
+                        <option value="concluido">Concluído</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Filtrar por Categoria</label>
+                    <select class="form-control" id="categoryFilter">
+                        <option value="">Todas</option>
+                        <option value="atendimento">Atendimento</option>
+                        <option value="produto">Produto</option>
+                        <option value="entrega">Entrega</option>
+                        <option value="sistema">Sistema</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Filtrar por Prioridade</label>
+                    <select class="form-control" id="priorityFilter">
+                        <option value="">Todas</option>
+                        <option value="alta">Alta</option>
+                        <option value="media">Média</option>
+                        <option value="baixa">Baixa</option>
+                    </select>
+                </div>
+            </div>
+
+            <table class="feedback-table">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Cliente</th>
+                        <th>Categoria</th>
+                        <th>Feedback</th>
+                        <th>Prioridade</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="feedbackTableBody">
+                    <!-- Será preenchido via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Modal de Edição -->
+        <div class="feedback-modal" id="editModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+                <h3>Editar Feedback</h3>
+                <form id="editFeedbackForm">
+                    <input type="hidden" id="editFeedbackId">
+                    <div class="form-group">
+                        <label class="form-label">Nome do Cliente</label>
+                        <input type="text" class="form-control" id="editClientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Categoria</label>
+                        <select class="form-control" id="editCategory" required>
+                            <option value="atendimento">Atendimento</option>
+                            <option value="produto">Produto</option>
+                            <option value="entrega">Entrega</option>
+                            <option value="sistema">Sistema</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Feedback</label>
+                        <textarea class="form-control" id="editFeedbackText" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prioridade</label>
+                        <select class="form-control" id="editPriority" required>
+                            <option value="baixa">Baixa</option>
+                            <option value="media">Média</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-control" id="editStatus" required>
+                            <option value="pendente">Pendente</option>
+                            <option value="analise">Em Análise</option>
+                            <option value="concluido">Concluído</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">Salvar Alterações</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Configuração inicial
+        const waveContainer = document.getElementById('waveContainer');
+        const recordButton = document.getElementById('recordButton');
+        const resultSection = document.getElementById('resultSection');
+        let isRecording = false;
+
+        // Criar ondas
+        for (let i = 0; i < 30; i++) {
+            const wave = document.createElement('div');
+            wave.className = 'wave';
+            waveContainer.appendChild(wave);
+        }
+
+        // Simulação de gravação
+        recordButton.addEventListener('click', () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        function startRecording() {
+            isRecording = true;
+            waveContainer.classList.add('recording');
+            recordButton.innerHTML = '<i class="fas fa-stop"></i><span>Parar</span>';
+            recordButton.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+            
+            // Simular gravação por 5 segundos
+            setTimeout(() => {
+                if (isRecording) {
+                    stopRecording();
+                }
+            }, 5000);
+        }
+
+        function stopRecording() {
+            isRecording = false;
+            waveContainer.classList.remove('recording');
+            recordButton.innerHTML = '<i class="fas fa-microphone"></i><span>Gravar</span>';
+            recordButton.style.background = 'linear-gradient(135deg, #2980b9, #2c3e50)';
+            
+            // Simular transcrição
+            const textos = [
+                "Estou muito satisfeito com o serviço prestado",
+                "O atendimento foi excelente e rápido",
+                "Não gostei da demora no processamento",
+                "O sistema é muito intuitivo e fácil de usar",
+                "Precisa melhorar a interface do usuário"
+            ];
+            
+            const texto = textos[Math.floor(Math.random() * textos.length)];
+            mostrarResultado(texto);
+        }
+
+        function mostrarResultado(texto) {
+            resultSection.style.display = 'block';
+            document.getElementById('transcricao').textContent = texto;
+            
+            // Análise de sentimento
+            const palavrasPositivas = ['satisfeito', 'excelente', 'rápido', 'intuitivo', 'fácil'];
+            const palavrasNegativas = ['não gostei', 'demora', 'melhorar', 'precisa'];
+            
+            let scorePositivo = 0;
+            let scoreNegativo = 0;
+            
+            palavrasPositivas.forEach(palavra => {
+                if (texto.toLowerCase().includes(palavra)) scorePositivo++;
+            });
+            
+            palavrasNegativas.forEach(palavra => {
+                if (texto.toLowerCase().includes(palavra)) scoreNegativo++;
+            });
+            
+            let sentimento, classe;
+            let confianca = 0;
+            
+            if (scorePositivo > scoreNegativo) {
+                sentimento = 'Positivo';
+                classe = 'sentiment-positive';
+                confianca = Math.round((scorePositivo / (scorePositivo + scoreNegativo)) * 100);
+            } else if (scoreNegativo > scorePositivo) {
+                sentimento = 'Negativo';
+                classe = 'sentiment-negative';
+                confianca = Math.round((scoreNegativo / (scorePositivo + scoreNegativo)) * 100);
+            } else {
+                sentimento = 'Neutro';
+                classe = 'sentiment-neutral';
+                confianca = 50;
+            }
+            
+            const badge = document.getElementById('sentimentBadge');
+            badge.className = `sentiment-badge ${classe}`;
+            badge.innerHTML = `<i class="fas fa-${sentimento === 'Positivo' ? 'smile' : sentimento === 'Negativo' ? 'frown' : 'meh'}"></i> ${sentimento}`;
+            
+            document.getElementById('sentimentDetails').textContent = `Confiança: ${confianca}%`;
+            
+            // Atualizar estatísticas
+            const totalAnalyses = document.getElementById('totalAnalysesMetric');
+            totalAnalyses.textContent = parseInt(totalAnalyses.textContent) + 1;
+        }
+
+        // Navegação entre abas
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remover classe active de todas as abas
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                
+                // Adicionar classe active na aba clicada
+                link.classList.add('active');
+                
+                // Esconder todas as seções
+                document.querySelectorAll('.main-card').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Mostrar a seção correspondente
+                const sectionClass = link.getAttribute('data-section');
+                document.querySelector('.' + sectionClass).style.display = 'block';
+                
+                // Se for dashboard, atualizar o gráfico
+                if (sectionClass === 'dashboard-section') {
+                    updateDashboard();
+                }
+            });
+        });
+
+        // Histórico de análises
+        let analysisHistory = [];
+
+        function addToHistory(text, sentiment, confidence) {
+            const now = new Date();
+            const historyItem = {
+                date: now,
+                text: text,
+                sentiment: sentiment,
+                confidence: confidence
+            };
+            
+            analysisHistory.unshift(historyItem);
+            updateHistory();
+            updateDashboard();
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            analysisHistory.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                
+                const date = item.date.toLocaleString('pt-BR');
+                const sentimentClass = item.sentiment.toLowerCase();
+                
+                li.innerHTML = `
+                    <div class="history-date">${date}</div>
+                    <p>${item.text}</p>
+                    <div class="sentiment-badge sentiment-${sentimentClass}">
+                        <i class="fas fa-${item.sentiment === 'Positivo' ? 'smile' : item.sentiment === 'Negativo' ? 'frown' : 'meh'}"></i>
+                        ${item.sentiment} (${item.confidence}% de confiança)
+                    </div>
+                `;
+                
+                historyList.appendChild(li);
+            });
+        }
+
+        // Dashboard
+        let sentimentChart;
+
+        function updateDashboard() {
+            const totalAnalyses = analysisHistory.length;
+            const positiveAnalyses = analysisHistory.filter(item => item.sentiment === 'Positivo').length;
+            const positiveRate = totalAnalyses > 0 ? Math.round((positiveAnalyses / totalAnalyses) * 100) : 0;
+            const avgConfidence = totalAnalyses > 0 
+                ? Math.round(analysisHistory.reduce((sum, item) => sum + item.confidence, 0) / totalAnalyses) 
+                : 0;
+
+            document.getElementById('totalAnalysesMetric').textContent = totalAnalyses;
+            document.getElementById('positiveRateMetric').textContent = positiveRate + '%';
+            document.getElementById('avgConfidenceMetric').textContent = avgConfidence + '%';
+
+            // Atualizar gráfico
+            const ctx = document.getElementById('sentimentChart').getContext('2d');
+            
+            const sentimentCounts = {
+                Positivo: analysisHistory.filter(item => item.sentiment === 'Positivo').length,
+                Neutro: analysisHistory.filter(item => item.sentiment === 'Neutro').length,
+                Negativo: analysisHistory.filter(item => item.sentiment === 'Negativo').length
+            };
+
+            if (sentimentChart) {
+                sentimentChart.destroy();
+            }
+
+            sentimentChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Positivo', 'Neutro', 'Negativo'],
+                    datasets: [{
+                        data: [sentimentCounts.Positivo, sentimentCounts.Neutro, sentimentCounts.Negativo],
+                        backgroundColor: ['#2ecc71', '#f39c12', '#e74c3c']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Distribuição de Sentimentos'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Modificar a função mostrarResultado para incluir histórico
+        const originalMostrarResultado = mostrarResultado;
+        mostrarResultado = function(texto) {
+            originalMostrarResultado(texto);
+            
+            // Adicionar ao histórico
+            const sentimentBadge = document.getElementById('sentimentBadge');
+            const sentiment = sentimentBadge.textContent.split(' ')[1];
+            const confidenceText = document.getElementById('sentimentDetails').textContent;
+            const confidence = parseInt(confidenceText.match(/\d+/)[0]);
+            
+            addToHistory(texto, sentiment, confidence);
+        };
+
+        // Inicializar dashboard
+        updateDashboard();
+
+        // Sistema de Feedback Melhorado
+        let feedbackList = [];
+
+        // Filtros
+        document.getElementById('statusFilter').addEventListener('change', updateFeedbackTable);
+        document.getElementById('categoryFilter').addEventListener('change', updateFeedbackTable);
+        document.getElementById('priorityFilter').addEventListener('change', updateFeedbackTable);
+
+        function updateFeedbackStats() {
+            const total = feedbackList.length;
+            const pending = feedbackList.filter(f => f.status === 'pendente').length;
+            const highPriority = feedbackList.filter(f => f.priority === 'alta').length;
+            const resolved = feedbackList.filter(f => f.status === 'concluido').length;
+
+            document.getElementById('totalFeedbacks').textContent = total;
+            document.getElementById('pendingFeedbacks').textContent = pending;
+            document.getElementById('highPriorityFeedbacks').textContent = highPriority;
+            document.getElementById('resolvedFeedbacks').textContent = resolved;
+        }
+
+        function updateFeedbackTable() {
+            const tbody = document.getElementById('feedbackTableBody');
+            tbody.innerHTML = '';
+            
+            const statusFilter = document.getElementById('statusFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            
+            const filteredFeedbacks = feedbackList.filter(feedback => {
+                const matchStatus = !statusFilter || feedback.status === statusFilter;
+                const matchCategory = !categoryFilter || feedback.category === categoryFilter;
+                const matchPriority = !priorityFilter || feedback.priority === priorityFilter;
+                return matchStatus && matchCategory && matchPriority;
+            });
+            
+            filteredFeedbacks.forEach(feedback => {
+                const tr = document.createElement('tr');
+                
+                const statusClass = {
+                    'pendente': 'status-pendente',
+                    'analise': 'status-analise',
+                    'concluido': 'status-concluido'
+                }[feedback.status];
+                
+                const categoryClass = {
+                    'atendimento': 'tag-atendimento',
+                    'produto': 'tag-produto',
+                    'entrega': 'tag-entrega',
+                    'sistema': 'tag-sistema'
+                }[feedback.category];
+
+                const priorityClass = {
+                    'alta': 'priority-alta',
+                    'media': 'priority-media',
+                    'baixa': 'priority-baixa'
+                }[feedback.priority];
+                
+                tr.innerHTML = `
+                    <td>
+                        <span class="feedback-status ${statusClass}"></span>
+                        ${feedback.status.charAt(0).toUpperCase() + feedback.status.slice(1)}
+                    </td>
+                    <td>${feedback.client}</td>
+                    <td><span class="feedback-tag ${categoryClass}">${feedback.category}</span></td>
+                    <td>${feedback.text}</td>
+                    <td><span class="priority-badge ${priorityClass}">${feedback.priority}</span></td>
+                    <td>${feedback.date.toLocaleString('pt-BR')}</td>
+                    <td class="feedback-actions">
+                        <button class="btn-action btn-edit" onclick="editFeedback(${feedback.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-action btn-status" onclick="toggleStatus(${feedback.id})">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteFeedback(${feedback.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+
+            updateFeedbackStats();
+        }
+
+        function editFeedback(id) {
+            const feedback = feedbackList.find(f => f.id === id);
+            if (!feedback) return;
+
+            document.getElementById('editFeedbackId').value = feedback.id;
+            document.getElementById('editClientName').value = feedback.client;
+            document.getElementById('editCategory').value = feedback.category;
+            document.getElementById('editFeedbackText').value = feedback.text;
+            document.getElementById('editPriority').value = feedback.priority;
+            document.getElementById('editStatus').value = feedback.status;
+
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        document.getElementById('editFeedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const id = parseInt(document.getElementById('editFeedbackId').value);
+            const index = feedbackList.findIndex(f => f.id === id);
+            
+            if (index === -1) return;
+
+            feedbackList[index] = {
+                ...feedbackList[index],
+                client: document.getElementById('editClientName').value,
+                category: document.getElementById('editCategory').value,
+                text: document.getElementById('editFeedbackText').value,
+                priority: document.getElementById('editPriority').value,
+                status: document.getElementById('editStatus').value
+            };
+
+            updateFeedbackTable();
+            closeEditModal();
+        });
+
+        function toggleStatus(id) {
+            const feedback = feedbackList.find(f => f.id === id);
+            if (!feedback) return;
+
+            const statusFlow = {
+                'pendente': 'analise',
+                'analise': 'concluido',
+                'concluido': 'pendente'
+            };
+
+            feedback.status = statusFlow[feedback.status];
+            updateFeedbackTable();
+        }
+
+        function deleteFeedback(id) {
+            if (!confirm('Tem certeza que deseja excluir este feedback?')) return;
+            
+            const index = feedbackList.findIndex(f => f.id === id);
+            if (index === -1) return;
+
+            feedbackList.splice(index, 1);
+            updateFeedbackTable();
+        }
+
+        // Atualizar a função de adicionar feedback
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const feedback = {
+                id: Date.now(),
+                client: document.getElementById('clientName').value,
+                category: document.getElementById('feedbackCategory').value,
+                text: document.getElementById('feedbackText').value,
+                priority: document.getElementById('feedbackPriority').value,
+                date: new Date(),
+                status: 'pendente'
+            };
+            
+            feedbackList.unshift(feedback);
+            updateFeedbackTable();
+            this.reset();
+            
+            alert('Feedback adicionado com sucesso!');
+        });
+
+        // Inicializar
+        updateFeedbackTable();
+    </script>
+</body>
+</html>

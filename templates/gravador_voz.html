@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <title>ASCEND - Gravador de Voz Disruptivo</title>
+    <style>
+        /* Estilo para a contagem regressiva */
+        .countdown {
+            font-size: 5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #007bff;
+            margin: 15px 0;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Estilo para as ondas de áudio */
+        .audio-waves {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            height: 60px;
+            margin: 20px 0;
+        }
+        
+        .wave {
+            width: 10px;
+            height: 40px;
+            background-color: #3498db;
+            border-radius: 5px;
+            animation: wave 1s infinite ease-in-out;
+        }
+        
+        .wave:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        
+        .wave:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        
+        .wave:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+        
+        .wave:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes wave {
+            0%, 100% {
+                height: 20px;
+            }
+            50% {
+                height: 60px;
+            }
+        }
+        
+        /* Estilo para o container de contagem regressiva */
+        #countdown-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+        
+        #countdown {
+            font-size: 10rem;
+            color: white;
+            text-shadow: 0 0 20px rgba(52, 152, 219, 0.8);
+        }
+        
+        /* Estilo para o botão de gravação */
+        #recordButton {
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        #recordButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Estilo para o display de tempo */
+        #time-display {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        /* Estilo para o resultado */
+        #result {
+            min-height: 100px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>PROJETO ASCEND</h1>
+        <p>Gravador de Voz com Análise de Sentimentos</p>
+    </header>
+
+    <div class="container">
+        <!-- Atualização na navegação: adicionando "Feedback Detalhado" -->
+        <nav class="mb-4">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/"><i class="fas fa-microphone"></i> Gravador</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/historico"><i class="fas fa-history"></i> Histórico</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard"><i class="fas fa-chart-bar"></i> Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/adicionar"><i class="fas fa-plus"></i> Adicionar Feedback</a>
+                </li>
+                <!-- Novo item de menu para o feedback detalhado -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/feedback"><i class="fas fa-edit"></i> Feedback Detalhado</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/relatorio-ponderado">Análise Ponderada</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row justify-content-center py-5">
+                <div class="col-md-8 text-center">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h4>Gravador de Voz para Análise de Sentimento</h4>
+                        </div>
+                        <div class="card-body">
+                            <p id="status">Clique no botão para iniciar a gravação</p>
+                            
+                            <!-- Barra de progresso do tempo -->
+                            <div id="progress-container" style="display: none;">
+                                <div class="progress mb-3">
+                                    <div id="recording-progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <p id="time-display" class="small text-muted">0s / 30s</p>
+                            </div>
+                            
+                            <div class="audio-waves" id="audio-waves" style="display: none;">
+                                <div class="wave"></div>
+                                <div class="wave"></div>
+                                <div class="wave"></div>
+                                <div class="wave"></div>
+                                <div class="wave"></div>
+                            </div>
+                            <div id="countdown-container" style="display: none;">
+                                <h1 id="countdown" class="display-1">3</h1>
+                            </div>
+                            <button id="recordButton" class="btn btn-primary btn-lg mt-3" onclick="iniciarContagem()">
+                                <i class="fas fa-microphone"></i> Clique para Gravar
+                            </button>
+                            <div class="mt-4">
+                                <h5>Sua mensagem:</h5>
+                                <div id="result" class="p-3 border rounded text-start">
+                                    Sua transcrição aparecerá aqui...
+                                </div>
+                            </div>
+                            <div id="sentiment-container" class="mt-4 d-none">
+                                <h5>Análise de Sentimento:</h5>
+                                <div id="sentiment-card" class="card">
+                                    <div class="card-body">
+                                        <h5 id="sentiment-text" class="card-title">Neutro</h5>
+                                        <div id="sentiment-emoji" class="display-1 text-center">😐</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <a href="/historico" class="btn btn-outline-secondary btn-block">
+                                        <i class="fas fa-history"></i> Ver Histórico
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="/dashboard" class="btn btn-outline-info btn-block">
+                                        <i class="fas fa-chart-bar"></i> Ver Dashboard
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-card">
+            <h3>Sobre o Projeto ASCEND</h3>
+            <p>
+                O projeto ASCEND transforma voz em insights valiosos através de análise de sentimentos.
+                Ideal para coletar feedback de clientes e melhorar a experiência de compra!
+            </p>
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-microphone-alt"></i>
+                    <span>Gravação por Voz</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Análise de Sentimentos</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Insights Acionáveis</span>
+                </div>
+            </div>
+        </div>
+
+        {% if not modelo_xlm_roberta %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>Aviso!</strong> O modelo avançado XLM-RoBERTa não está disponível. Estamos usando um modelo básico para análise de sentimento.
+          <a href="/diagnostico" class="alert-link">Visite a página de diagnóstico</a> para mais informações e opções para resolver este problema.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <footer>
+        <p>ASCEND - Análise de Sentimentos Cognitiva para Experiência do Cliente | Projeto Disruptivo</p>
+    </footer>
+
+    <script>
+        // Função para controlar a animação de ondas de áudio
+        function toggleWaveAnimation(show) {
+            const wavesContainer = document.getElementById('audio-waves');
+            if (show) {
+                wavesContainer.style.display = 'flex';
+            } else {
+                wavesContainer.style.display = 'none';
+            }
+        }
+
+        // Função para mostrar o resultado do sentimento
+        function mostrarSentimento(sentimento, compound) {
+            const sentimentContainer = document.getElementById('sentiment-container');
+            const sentimentText = document.getElementById('sentiment-text');
+            const sentimentEmoji = document.getElementById('sentiment-emoji');
+            
+            sentimentContainer.classList.remove('d-none');
+            
+            // Definir cor e emoji com base no sentimento
+            let emoji = '😐';
+            let bgColor = 'bg-secondary';
+            let textColor = 'text-white';
+            
+            if (sentimento === 'positivo') {
+                emoji = '😄';
+                bgColor = 'bg-success';
+            } else if (sentimento === 'negativo') {
+                emoji = '😞';
+                bgColor = 'bg-danger';
+            } else {
+                emoji = '😐';
+                bgColor = 'bg-secondary';
+            }
+            
+            // Exibir o resultado
+            sentimentText.innerText = sentimento.charAt(0).toUpperCase() + sentimento.slice(1);
+            sentimentEmoji.innerText = emoji;
+            
+            // Aplicar cores
+            const card = document.getElementById('sentiment-card');
+            card.className = 'card ' + bgColor + ' ' + textColor;
+        }
+
+        // Verificar permissão do microfone
+        async function checkMicrophonePermission() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // Fechar stream após obter permissão
+                stream.getTracks().forEach(track => track.stop());
+                return true;
+            } catch (error) {
+                console.error('Erro ao obter permissão do microfone:', error);
+                return false;
+            }
+        }
+
+        // Nova função para iniciar a contagem regressiva
+        async function iniciarContagem() {
+            const button = document.getElementById('recordButton');
+            const status = document.getElementById('status');
+            const countdownContainer = document.getElementById('countdown-container');
+            const countdownElement = document.getElementById('countdown');
+            
+            // Verificar permissão do microfone
+            const hasMicPermission = await checkMicrophonePermission();
+            if (!hasMicPermission) {
+                status.innerText = 'Erro: Permissão para microfone negada!';
+                document.getElementById('result').innerText = 'Por favor, permita o acesso ao microfone no seu navegador e tente novamente.';
+                return;
+            }
+            
+            // Desabilitar o botão durante a contagem
+            button.disabled = true;
+            status.innerText = 'Preparando para gravar...';
+            
+            // Mostrar o elemento de contagem
+            countdownContainer.style.display = 'block';
+            
+            // Contagem regressiva de 3 a 1
+            for (let i = 3; i > 0; i--) {
+                countdownElement.innerText = i;
+                countdownElement.classList.add('animate__animated', 'animate__bounceIn');
+                
+                // Esperar 1 segundo
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                countdownElement.classList.remove('animate__animated', 'animate__bounceIn');
+            }
+            
+            // Mostrar "Pronto!"
+            countdownElement.innerText = "Pronto!";
+            countdownElement.classList.add('animate__animated', 'animate__zoomIn');
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Esconder o elemento de contagem regressiva
+            countdownContainer.style.display = 'none';
+            countdownElement.classList.remove('animate__animated', 'animate__zoomIn');
+            
+            // Iniciar a gravação
+            ouvirMicrofone();
+        }
+
+        // Função para ouvir o microfone
+        let activeRecordingRequest = null; // Variável para armazenar a requisição ativa
+
+        function ouvirMicrofone() {
+            const button = document.getElementById('recordButton');
+            const status = document.getElementById('status');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('recording-progress');
+            const timeDisplay = document.getElementById('time-display');
+            
+            // Criar o botão de parar gravação
+            button.innerHTML = '<i class="fas fa-stop"></i> Parar Gravação';
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-danger');
+            
+            // Mudar a função do botão para parar a gravação
+            button.onclick = pararGravacao;
+            
+            status.innerText = 'Estamos ouvindo a sua voz... (fale claramente)';
+            
+            const sentimentContainer = document.getElementById('sentiment-container');
+            sentimentContainer.classList.add('d-none');
+            
+            // Mostrar a barra de progresso
+            progressContainer.style.display = 'block';
+            
+            toggleWaveAnimation(true);
+            
+            // Tempo máximo de gravação em segundos
+            const maxDuration = 30;
+            // Limite para mostrar aviso de tempo
+            const warningThreshold = 25;
+            
+            let timeElapsed = 0;
+            let silentTime = 0;
+            let isSilent = false;
+            
+            const timerInterval = setInterval(() => {
+                timeElapsed += 1;
+                
+                // Atualizar a barra de progresso
+                const progressPercent = (timeElapsed / maxDuration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                
+                // Se estiver detectando silêncio
+                if (isSilent) {
+                    silentTime += 1;
+                    timeDisplay.innerHTML = `${timeElapsed}s / ${maxDuration}s <span class="badge badge-warning">Silêncio detectado: ${silentTime}s</span>`;
+                    
+                    // Piscar a mensagem de silêncio
+                    if (silentTime % 2 === 0) {
+                        status.classList.add('text-warning');
+                    } else {
+                        status.classList.remove('text-warning');
+                    }
+                } else {
+                    timeDisplay.innerText = `${timeElapsed}s / ${maxDuration}s`;
+                }
+                
+                // Mudar a cor da barra de progresso quando estiver chegando ao limite
+                if (timeElapsed >= warningThreshold) {
+                    progressBar.classList.remove('bg-primary', 'bg-warning');
+                    progressBar.classList.add('bg-danger');
+                    status.innerText = `ATENÇÃO: Restam apenas ${maxDuration - timeElapsed} segundos!`;
+                    status.classList.add('text-danger', 'font-weight-bold');
+                } else if (timeElapsed >= 15) {
+                    progressBar.classList.remove('bg-primary');
+                    progressBar.classList.add('bg-warning');
+                    status.innerText = 'Continue falando... (gravação em andamento)';
+                } else {
+                    status.innerText = `Estamos ouvindo sua voz... (${timeElapsed}s)`;
+                }
+            }, 1000);
+            
+            // Controlar silêncio - simulação do comportamento do backend
+            // Criar um analisador de áudio para detectar silêncio
+            let silenceDetectionInterval;
+            
+            try {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const analyser = audioContext.createAnalyser();
+                        const microphone = audioContext.createMediaStreamSource(stream);
+                        const scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
+                        
+                        analyser.smoothingTimeConstant = 0.8;
+                        analyser.fftSize = 1024;
+                        
+                        microphone.connect(analyser);
+                        analyser.connect(scriptProcessor);
+                        scriptProcessor.connect(audioContext.destination);
+                        
+                        const silenceThreshold = 10;
+                        scriptProcessor.onaudioprocess = function() {
+                            const array = new Uint8Array(analyser.frequencyBinCount);
+                            analyser.getByteFrequencyData(array);
+                            const arraySum = array.reduce((a, value) => a + value, 0);
+                            const average = arraySum / array.length;
+                            
+                            // Se o volume médio estiver abaixo do limiar, consideramos como silêncio
+                            if (average < silenceThreshold) {
+                                if (!isSilent) {
+                                    isSilent = true;
+                                    status.innerText = "Silêncio detectado... (continuando a gravação)";
+                                    status.classList.add('text-warning');
+                                }
+                            } else {
+                                if (isSilent) {
+                                    isSilent = false;
+                                    silentTime = 0;
+                                    status.classList.remove('text-warning');
+                                    status.innerText = `Estamos ouvindo sua voz... (${timeElapsed}s)`;
+                                }
+                            }
+                        };
+                        
+                        // Armazenar as conexões para limpar depois
+                        silenceDetectionInterval = {
+                            stop: function() {
+                                stream.getTracks().forEach(track => track.stop());
+                                scriptProcessor.disconnect();
+                                analyser.disconnect();
+                                microphone.disconnect();
+                                if (audioContext.state !== 'closed') {
+                                    audioContext.close();
+                                }
+                            }
+                        };
+                    })
+                    .catch(error => {
+                        console.error("Erro ao acessar microfone para detecção de silêncio:", error);
+                    });
+            } catch (error) {
+                console.error("Erro ao configurar detecção de silêncio:", error);
+            }
+            
+            activeRecordingRequest = fetch('/ouvir', { 
+                method: 'POST',
+                signal: AbortSignal.timeout(32000) // Um pouco mais que o tempo máximo
+            })
+                .then(response => response.json())
+                .then(data => {
+                    clearInterval(timerInterval);
+                    if (silenceDetectionInterval) {
+                        silenceDetectionInterval.stop();
+                    }
+                    
+                    resetarBotaoGravacao();
+                    
+                    // Mostrar mensagem com base no motivo de parada
+                    if (data.success) {
+                        if (data.motivo_parada === 'silencio_detectado') {
+                            status.innerText = 'Gravação concluída! (Detectamos silêncio)';
+                        } else if (data.motivo_parada === 'sem_fala') {
+                            status.innerText = 'Não conseguimos ouvir sua voz. Tente falar mais alto!';
+                        } else {
+                            status.innerText = 'Gravação concluída!';
+                        }
+                    } else {
+                        status.innerText = 'Erro ao gravar!';
+                    }
+                    
+                    status.classList.remove('text-danger', 'font-weight-bold', 'text-warning');
+                    document.getElementById('result').innerText = data.texto;
+                    
+                    // Esconder a barra de progresso
+                    progressContainer.style.display = 'none';
+                    
+                    if (data.sentimento) {
+                        mostrarSentimento(data.sentimento, data.compound);
+                    }
+                    
+                    toggleWaveAnimation(false);
+                    
+                    // Limpar a requisição ativa
+                    activeRecordingRequest = null;
+                })
+                .catch(error => {
+                    clearInterval(timerInterval);
+                    if (silenceDetectionInterval) {
+                        silenceDetectionInterval.stop();
+                    }
+                    
+                    resetarBotaoGravacao();
+                    
+                    status.innerText = 'Erro ao gravar.';
+                    status.classList.remove('text-danger', 'font-weight-bold', 'text-warning');
+                    document.getElementById('result').innerText = 'Erro ao gravar: ' + error;
+                    
+                    // Esconder a barra de progresso
+                    progressContainer.style.display = 'none';
+                    
+                    toggleWaveAnimation(false);
+                    
+                    // Limpar a requisição ativa
+                    activeRecordingRequest = null;
+                });
+        }
+        
+        // Função para parar a gravação manualmente
+        function pararGravacao() {
+            // Se não houver uma gravação ativa, não fazer nada
+            if (!activeRecordingRequest) return;
+            
+            const status = document.getElementById('status');
+            status.innerText = 'Finalizando gravação...';
+            
+            // Abortar a requisição atual (se suportado pelo navegador)
+            if (window.AbortController && activeRecordingRequest.controller) {
+                activeRecordingRequest.controller.abort();
+            }
+            
+            // Resetar o botão
+            resetarBotaoGravacao();
+            
+            // Iniciar nova requisição para finalizar a gravação
+            fetch('/ouvir', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ manual_stop: true })
+            })
+            .then(response => response.json())
+            .then(data => {
+                status.innerText = 'Gravação finalizada manualmente!';
+                document.getElementById('result').innerText = data.texto || 'Transcrição não disponível';
+                
+                if (data.sentimento) {
+                    mostrarSentimento(data.sentimento, data.compound);
+                }
+                
+                // Esconder a barra de progresso
+                document.getElementById('progress-container').style.display = 'none';
+                toggleWaveAnimation(false);
+            })
+            .catch(error => {
+                status.innerText = 'Erro ao finalizar gravação.';
+                document.getElementById('result').innerText = 'Erro ao finalizar: ' + error;
+                
+                // Esconder a barra de progresso
+                document.getElementById('progress-container').style.display = 'none';
+                toggleWaveAnimation(false);
+            });
+        }
+        
+        // Função para resetar o botão de gravação
+        function resetarBotaoGravacao() {
+            const button = document.getElementById('recordButton');
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-microphone"></i> Clique para Gravar';
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-primary');
+            button.onclick = iniciarContagem;
+        }
+    </script>
+</body>
+</html>
