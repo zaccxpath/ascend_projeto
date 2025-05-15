@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração GPT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <style>
+        .card-header-status-on {
+            background-color: #28a745;
+            color: white;
+        }
+        .card-header-status-off {
+            background-color: #dc3545;
+            color: white;
+        }
+        .test-result {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .metrics-card {
+            font-size: 0.9rem;
+        }
+        .metrics-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Configuração da Integração GPT</h1>
+        
+        {% if erro_cota %}
+        <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading">Cota da API OpenAI Excedida!</h4>
+            <p>Sua conta da OpenAI atingiu o limite de crédito disponível.</p>
+            <hr>
+            <p class="mb-0">Para continuar usando a integração GPT, você precisa:</p>
+            <ul>
+                <li>Verificar seu plano e detalhes de faturamento na <a href="https://platform.openai.com/account/billing" target="_blank">OpenAI Platform</a></li>
+                <li>Adicionar créditos à sua conta se necessário</li>
+                <li>Ou utilizar uma chave API diferente nos campos abaixo</li>
+            </ul>
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div id="statusHeader" class="card-header card-header-status-off">
+                        <h2>Status: <span id="statusText">Desativado</span></h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="configForm">
+                            <div class="mb-3">
+                                <label for="apiKey" class="form-label">Chave API OpenAI</label>
+                                <input type="password" class="form-control" id="apiKey" placeholder="sk-...">
+                                <div class="form-text">
+                                    A chave API da OpenAI é necessária para acessar o ChatGPT.
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="modelSelect" class="form-label">Modelo GPT</label>
+                                <select class="form-select" id="modelSelect">
+                                    <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo</option>
+                                    <option value="gpt-3.5-turbo-0125">GPT-3.5 Turbo 0125</option>
+                                    <option value="gpt-3.5-turbo-instruct">GPT-3.5 Turbo Instruct</option>
+                                    <!-- Modelos que requerem acesso especial -->
+                                    <option value="gpt-4" disabled>GPT-4 (Acesso Restrito)</option>
+                                    <option value="gpt-4-turbo" disabled>GPT-4 Turbo (Acesso Restrito)</option>
+                                </select>
+                                <div class="form-text">
+                                    Modelos mais avançados podem requerer acesso especial à API da OpenAI.
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="button" id="activateBtn" class="btn btn-success">Ativar Integração</button>
+                                <button type="button" id="deactivateBtn" class="btn btn-danger">Desativar Integração</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Métricas de Uso</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="metricsContainer">
+                            <div class="col-6 col-md-4 mb-3">
+                                <div class="card metrics-card">
+                                    <div class="card-body text-center">
+                                        <h5>Total</h5>
+                                        <div class="metrics-count" id="totalCount">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 mb-3">
+                                <div class="card metrics-card">
+                                    <div class="card-body text-center">
+                                        <h5>Sucesso</h5>
+                                        <div class="metrics-count text-success" id="successCount">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 mb-3">
+                                <div class="card metrics-card">
+                                    <div class="card-body text-center">
+                                        <h5>Falhas</h5>
+                                        <div class="metrics-count text-danger" id="errorCount">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4 mb-3">
+                                <div class="card metrics-card">
+                                    <div class="card-body text-center">
+                                        <h5>Latência</h5>
+                                        <div class="metrics-count" id="latencyAvg">0 ms</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Teste de Análise GPT</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="testForm">
+                            <div class="mb-3">
+                                <label for="testText" class="form-label">Texto para análise</label>
+                                <textarea class="form-control" id="testText" rows="5" placeholder="Digite um texto para analisar com o GPT..."></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="analysisType" class="form-label">Tipo de análise</label>
+                                <select class="form-select" id="analysisType">
+                                    <option value="sentimento">Sentimento</option>
+                                    <option value="sarcasmo">Sarcasmo</option>
+                                    <option value="completo" selected>Completo</option>
+                                    <option value="varejo">Varejo</option>
+                                </select>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="button" id="testBtn" class="btn btn-primary">Analisar</button>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-4">
+                            <h4>Resultado:</h4>
+                            <div id="testResult" class="test-result p-3 bg-light border rounded">
+                                Os resultados do teste aparecerão aqui...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar status atual
+        checkStatus();
+        
+        // Configurar botões
+        document.getElementById('activateBtn').addEventListener('click', activateGPT);
+        document.getElementById('deactivateBtn').addEventListener('click', deactivateGPT);
+        document.getElementById('testBtn').addEventListener('click', testGPT);
+        
+        // Verificar status periodicamente
+        setInterval(checkStatus, 30000);
+    });
+    
+    // Verificar status da integração GPT
+    function checkStatus() {
+        fetch('/api/status-gpt')
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    // Atualizar UI baseado no status
+                    updateStatusUI(data.ativado);
+                    
+                    // Atualizar métricas se disponíveis
+                    if (data.metricas && Object.keys(data.metricas).length > 0) {
+                        updateMetrics(data.metricas);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao verificar status:', error);
+            });
+    }
+    
+    // Atualizar interface com status atual
+    function updateStatusUI(isActive) {
+        const statusHeader = document.getElementById('statusHeader');
+        const statusText = document.getElementById('statusText');
+        
+        if (isActive) {
+            statusHeader.className = 'card-header card-header-status-on';
+            statusText.textContent = 'Ativado';
+        } else {
+            statusHeader.className = 'card-header card-header-status-off';
+            statusText.textContent = 'Desativado';
+        }
+    }
+    
+    // Atualizar métricas na interface
+    function updateMetrics(metrics) {
+        document.getElementById('totalCount').textContent = metrics.chamadas_totais || 0;
+        document.getElementById('successCount').textContent = metrics.chamadas_sucesso || 0;
+        document.getElementById('errorCount').textContent = metrics.chamadas_erro || 0;
+        
+        // Formatar latência média
+        const latencyAvg = metrics.latencia_media || 0;
+        document.getElementById('latencyAvg').textContent = `${(latencyAvg * 1000).toFixed(0)} ms`;
+    }
+    
+    // Ativar integração GPT
+    function activateGPT() {
+        const apiKey = document.getElementById('apiKey').value;
+        const model = document.getElementById('modelSelect').value;
+        
+        if (!apiKey) {
+            alert('Por favor, forneça uma chave de API OpenAI');
+            return;
+        }
+        
+        fetch('/api/configurar-gpt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                api_key: apiKey,
+                modelo: model,
+                ativar: true
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.sucesso) {
+                alert('Integração GPT ativada com sucesso!');
+                checkStatus();
+            } else {
+                alert(`Erro ao ativar GPT: ${data.mensagem}`);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao ativar GPT:', error);
+            alert('Ocorreu um erro ao ativar a integração GPT');
+        });
+    }
+    
+    // Desativar integração GPT
+    function deactivateGPT() {
+        fetch('/api/configurar-gpt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ativar: false
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.sucesso) {
+                alert('Integração GPT desativada com sucesso!');
+                checkStatus();
+            } else {
+                alert(`Erro ao desativar GPT: ${data.mensagem}`);
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao desativar GPT:', error);
+            alert('Ocorreu um erro ao desativar a integração GPT');
+        });
+    }
+    
+    // Testar análise GPT
+    function testGPT() {
+        const text = document.getElementById('testText').value;
+        const analysisType = document.getElementById('analysisType').value;
+        const resultElement = document.getElementById('testResult');
+        
+        if (!text) {
+            resultElement.textContent = 'Por favor, digite um texto para analisar';
+            resultElement.className = 'test-result p-3 bg-danger text-white border rounded';
+            return;
+        }
+        
+        resultElement.textContent = 'Analisando...';
+        resultElement.className = 'test-result p-3 bg-light border rounded';
+        
+        fetch('/api/analisar-gpt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                texto: text,
+                tipo: analysisType
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.sucesso) {
+                resultElement.textContent = JSON.stringify(data.resultado, null, 2);
+                resultElement.className = 'test-result p-3 bg-light border rounded';
+            } else {
+                // Verificar se é um erro de cota excedida
+                if (data.erro_tipo === 'quota_exceeded') {
+                    resultElement.innerHTML = `<div class="alert alert-warning">
+                        <h5>Cota da API OpenAI Excedida</h5>
+                        <p>${data.mensagem}</p>
+                        <p>Para resolver este problema:</p>
+                        <ul>
+                            <li>Acesse sua conta no <a href="https://platform.openai.com/account/billing" target="_blank">painel da OpenAI</a></li>
+                            <li>Verifique o status do seu plano e adicione créditos se necessário</li>
+                            <li>Ou tente com uma nova chave API que tenha créditos disponíveis</li>
+                        </ul>
+                    </div>`;
+                } else {
+                    resultElement.textContent = `Erro: ${data.mensagem}`;
+                    resultElement.className = 'test-result p-3 bg-danger text-white border rounded';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro no teste GPT:', error);
+            resultElement.textContent = 'Erro ao comunicar com o servidor';
+            resultElement.className = 'test-result p-3 bg-danger text-white border rounded';
+        });
+    }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,39 @@
+[
+  {
+    "id": "reg_2025-04-27T16-08-32-604935",
+    "data": "2025-04-27T16:08:32.604935",
+    "texto": "Comprei um eletrônico que parou de funcionar após três dias de uso.",
+    "analise": {
+      "sentimento": "negativo",
+      "confianca": 0.6326444745063782,
+      "score": -0.6326444745063782,
+      "sarcasmo": {
+        "is_sarcastic": false,
+        "probability": 0.1,
+        "level": "low",
+        "evidence": [
+          "dias",
+          "parou"
+        ]
+      }
+    },
+    "data_formatada": "27/04/2025 16:08:32"
+  },
+  {
+    "id": "reg_2025-04-27T16-33-54-179408",
+    "data": "2025-04-27T16:33:54.179408",
+    "texto": "Adorei o produto! Chegou rápido e a qualidade é excelente. Recomendo a todos!",
+    "analise": {
+      "sentimento": "positivo",
+      "confianca": 0.9282078742980957,
+      "score": 0.9282078742980957,
+      "sarcasmo": {
+        "is_sarcastic": false,
+        "probability": 0.1,
+        "level": "low",
+        "evidence": []
+      }
+    },
+    "data_formatada": "27/04/2025 16:33:54"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "id": "78ebc65b-1c32-43cc-a9bc-b96948335f4f",
+  "texto": "Nossa, que atendimento incrível, esperei apenas 2 horas na fila!",
+  "data": "2025-04-26 22:31:51",
+  "tipo": "analise_sarcasmo",
+  "sentimento": "positivo",
+  "sentimento_final": "positivo",
+  "analise": {
+    "sentimento": "positivo",
+    "confianca": 0.9043108224868774,
+    "modelo": "xlm-roberta",
+    "original": {
+      "label": "positive",
+      "score": 0.9043108224868774
+    },
+    "tokens_relevantes": {
+      "positivos": [],
+      "negativos": []
+    }
+  },
+  "sarcasmo": {
+    "detectado": false,
+    "confianca": 0,
+    "marcadores": [],
+    "metodo_deteccao": "regras"
+  }
+}

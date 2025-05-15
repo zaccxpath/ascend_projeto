@@ -638,7 +638,7 @@
                         {% if estatisticas and estatisticas.distribuicao_sentimentos %}
                             {{ estatisticas.distribuicao_sentimentos.positivo.percentual }}%
                         {% else %}
-                            --
+                            
                         {% endif %}
                     </div>
                     <div class="stat-trend">
@@ -920,14 +920,14 @@
                         {% if estatisticas and estatisticas.taxa_avaliacao %}
                             {{ estatisticas.taxa_avaliacao }}%
                         {% else %}
-                            8%
+                            
                         {% endif %}
                     </div>
                     <div class="kpi-target">
                         <i class="fas fa-crosshairs mr-1"></i> Meta: 25%
                     </div>
                     <div class="kpi-progress">
-                        <div class="kpi-progress-bar bg-primary" style="width: {% if estatisticas and estatisticas.taxa_avaliacao %}{{ (estatisticas.taxa_avaliacao / 25) * 100 }}{% else %}32{% endif %}%;"></div>
+                        <div class="kpi-progress-bar bg-primary" style="width: {% if estatisticas and estatisticas.taxa_avaliacao %}{{ (estatisticas.taxa_avaliacao / 25) * 100 }}{% else %}0{% endif %}%;"></div>
                     </div>
                     <div class="kpi-trend mt-2">
                         <span class="badge {% if estatisticas and estatisticas.tendencia_feedbacks and estatisticas.tendencia_feedbacks.direcao == 'aumento' %}badge-success{% else %}badge-danger{% endif %} p-1">
@@ -935,7 +935,7 @@
                             {% if estatisticas and estatisticas.tendencia_feedbacks %}
                                 {{ estatisticas.tendencia_feedbacks.valor }}%
                             {% else %}
-                                +3.2%
+                                
                             {% endif %}
                         </span>
                         <small class="text-muted ml-2">vs período anterior</small>
@@ -954,19 +954,21 @@
                         {% if estatisticas and estatisticas.distribuicao_sentimentos %}
                             {{ estatisticas.distribuicao_sentimentos.positivo.percentual }}%
                         {% else %}
-                            65%
+                            
                         {% endif %}
                     </div>
                     <div class="kpi-target">
                         <i class="fas fa-crosshairs mr-1"></i> Meta: 80% positivo
                     </div>
                     <div class="kpi-progress">
-                        <div class="kpi-progress-bar bg-success" style="width: {% if estatisticas and estatisticas.distribuicao_sentimentos %}{{ (estatisticas.distribuicao_sentimentos.positivo.percentual / 80) * 100 }}{% else %}81.25{% endif %}%;"></div>
+                        <div class="kpi-progress-bar bg-success" style="width: {% if estatisticas and estatisticas.distribuicao_sentimentos %}{{ (estatisticas.distribuicao_sentimentos.positivo.percentual / 80) * 100 }}{% else %}0{% endif %}%;"></div>
                     </div>
                     <div class="compare-stats mt-2">
                         <span class="label">Por canal:</span>
-                        <span class="badge badge-info p-1">Texto: 62%</span>
-                        <span class="badge badge-info p-1">Voz: 70%</span>
+                        {% if estatisticas.sentimento_por_canal %}
+                        <span class="badge badge-info p-1">Texto: {{ estatisticas.sentimento_por_canal.texto }}%</span>
+                        <span class="badge badge-info p-1">Voz: {{ estatisticas.sentimento_por_canal.voz }}%</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -982,18 +984,18 @@
                         {% if estatisticas and estatisticas.ponderacao %}
                             {{ estatisticas.ponderacao.concordancia_cliente_modelo }}%
                         {% else %}
-                            68.3%
+                            
                         {% endif %}
                     </div>
                     <div class="kpi-target">
                         <i class="fas fa-crosshairs mr-1"></i> Meta: 85%
                     </div>
                     <div class="kpi-progress">
-                        <div class="kpi-progress-bar" style="width: {% if estatisticas and estatisticas.ponderacao %}{{ (estatisticas.ponderacao.concordancia_cliente_modelo / 85) * 100 }}{% else %}80.3{% endif %}%; background-color: var(--insight-color);"></div>
+                        <div class="kpi-progress-bar" style="width: {% if estatisticas and estatisticas.ponderacao %}{{ (estatisticas.ponderacao.concordancia_cliente_modelo / 85) * 100 }}{% else %}0{% endif %}%; background-color: var(--insight-color);"></div>
                     </div>
                     <div class="kpi-trend mt-2">
                         <span class="badge badge-success p-1">
-                            <i class="fas fa-arrow-up"></i> +5.2%
+                            <i class="fas fa-arrow-up"></i>{% if estatisticas.tendencia_concordancia %} {{ estatisticas.tendencia_concordancia }}%{% endif %}
                         </span>
                         <small class="text-muted ml-2">vs mês anterior</small>
                     </div>
@@ -1011,18 +1013,18 @@
                         {% if estatisticas and estatisticas.nps_estimado %}
                             {{ estatisticas.nps_estimado }}
                         {% else %}
-                            42
+                            
                         {% endif %}
                     </div>
                     <div class="kpi-target">
                         <i class="fas fa-crosshairs mr-1"></i> Meta: 70+
                     </div>
                     <div class="kpi-progress">
-                        <div class="kpi-progress-bar bg-info" style="width: {% if estatisticas and estatisticas.nps_estimado %}{{ (estatisticas.nps_estimado / 70) * 100 }}{% else %}60{% endif %}%;"></div>
+                        <div class="kpi-progress-bar bg-info" style="width: {% if estatisticas and estatisticas.nps_estimado %}{{ (estatisticas.nps_estimado / 70) * 100 }}{% else %}0{% endif %}%;"></div>
                     </div>
                     <div class="kpi-trend mt-2">
                         <span class="badge badge-success p-1">
-                            <i class="fas fa-arrow-up"></i> +8
+                            <i class="fas fa-arrow-up"></i>{% if estatisticas.tendencia_nps %} {{ estatisticas.tendencia_nps }}{% endif %}
                         </span>
                         <small class="text-muted ml-2">vs mês anterior</small>
                     </div>
@@ -1268,7 +1270,7 @@
                             <div class="card-body py-2">
                                 <small class="text-muted">
                                     <i class="fas fa-info-circle mr-1"></i>
-                                    <strong>Precisão do modelo:</strong> Em {{ estatisticas.ponderacao.concordancia_cliente_modelo if estatisticas.ponderacao else '68.3' }}% dos casos, a análise automática de sentimento concorda com a percepção do cliente. Este indicador reflete a precisão do sistema ASCEND na interpretação correta da experiência do cliente.
+                                    <strong>Precisão do modelo:</strong> Em {{ estatisticas.ponderacao.concordancia_cliente_modelo if estatisticas.ponderacao else '' }}% dos casos, a análise automática de sentimento concorda com a percepção do cliente. Este indicador reflete a precisão do sistema ASCEND na interpretação correta da experiência do cliente.
                                 </small>
                             </div>
                         </div>
@@ -1289,70 +1291,41 @@
             <div class="col-12">
                 <h4 class="section-title"><i class="fas fa-clipboard-check"></i>Recomendações Estratégicas e Ações</h4>
                 <div class="insights-card">
+                    {% if recomendacoes %}
                     <div class="row">
+                        {% for recomendacao in recomendacoes %}
                         <div class="col-md-4">
                             <div class="recommendation-card">
-                                <h5><i class="fas fa-truck mr-2"></i>Logística e Entrega</h5>
-                                <p>Revisar os procedimentos de entrega para reduzir o tempo médio de entrega em 15%, com foco em entregas em áreas metropolitanas.</p>
+                                <h5><i class="fas fa-{{ recomendacao.icone|default('chart-bar') }} mr-2"></i>{{ recomendacao.titulo }}</h5>
+                                <p>{{ recomendacao.descricao }}</p>
                                 <div class="mt-2">
-                                    <span class="badge badge-danger">Prioridade Alta</span>
-                                    <span class="badge badge-primary">Em andamento</span>
+                                    <span class="badge badge-{{ recomendacao.prioridade_classe|default('secondary') }}">{{ recomendacao.prioridade_texto }}</span>
+                                    <span class="badge badge-{{ recomendacao.status_classe|default('secondary') }}">{{ recomendacao.status_texto }}</span>
                                 </div>
+                                {% if recomendacao.impacto %}
                                 <div class="mt-2">
                                     <small class="text-muted">
-                                        <i class="fas fa-chart-bar mr-1"></i>Impacto esperado: +18% em satisfação com entrega
+                                        <i class="fas fa-chart-bar mr-1"></i>Impacto {{ recomendacao.impacto_tipo }}: {{ recomendacao.impacto }}
                                     </small>
                                 </div>
+                                {% endif %}
                                 <div class="mt-2">
                                     <small class="text-muted">
-                                        <i class="fas fa-comment-dots mr-1"></i>Mencionado em {{ estatisticas.aspectos.contagem_por_aspecto.entrega if estatisticas and estatisticas.aspectos and estatisticas.aspectos.contagem_por_aspecto and 'entrega' in estatisticas.aspectos.contagem_por_aspecto else '12' }} feedbacks
+                                        <i class="fas fa-comment-dots mr-1"></i>Mencionado em {{ recomendacao.mencoes if recomendacao.mencoes else '' }} feedbacks
                                     </small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="recommendation-card">
-                                <h5><i class="fas fa-headset mr-2"></i>Atendimento ao Cliente</h5>
-                                <p>Implementar treinamento adicional para equipe de suporte com foco em resolução no primeiro contato e redução do tempo de resposta.</p>
-                                <div class="mt-2">
-                                    <span class="badge badge-warning">Prioridade Média</span>
-                                    <span class="badge badge-success">Concluído</span>
-                                </div>
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-chart-bar mr-1"></i>Impacto medido: +22% em satisfação com atendimento
-                                    </small>
-                                </div>
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-comment-dots mr-1"></i>Mencionado em {{ estatisticas.aspectos.contagem_por_aspecto.atendimento if estatisticas and estatisticas.aspectos and estatisticas.aspectos.contagem_por_aspecto and 'atendimento' in estatisticas.aspectos.contagem_por_aspecto else '8' }} feedbacks
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="recommendation-card">
-                                <h5><i class="fas fa-box-open mr-2"></i>Qualidade de Produto</h5>
-                                <p>Revisar a embalagem dos produtos mais frágeis para reduzir danos durante o transporte e melhorar a experiência de unboxing.</p>
-                                <div class="mt-2">
-                                    <span class="badge badge-info">Prioridade Baixa</span>
-                                    <span class="badge badge-secondary">Pendente</span>
-                                </div>
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-chart-bar mr-1"></i>Impacto esperado: -42% em reclamações sobre danos
-                                    </small>
-                                </div>
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-comment-dots mr-1"></i>Mencionado em {{ estatisticas.aspectos.contagem_por_aspecto.produto if estatisticas and estatisticas.aspectos and estatisticas.aspectos.contagem_por_aspecto and 'produto' in estatisticas.aspectos.contagem_por_aspecto else '15' }} feedbacks
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-2"></i> Não há recomendações disponíveis com base nos dados atuais. Adicione mais feedback para gerar recomendações estratégicas.
+                    </div>
+                    {% endif %}
 
                     <!-- Seção: Além das Estrelas - Destaques qualitativos -->
+                    {% if insights_qualitativos %}
                     <div class="row mt-4">
                         <div class="col-12">
                             <h5 class="mb-3"><i class="fas fa-star mr-2"></i>Além das Estrelas: Insights Qualitativos</h5>
@@ -1361,29 +1334,20 @@
                                     <p class="lead">Insights que não seriam capturados por avaliações tradicionais de 1-5 estrelas:</p>
                                     
                                     <div class="row">
+                                        {% for insight in insights_qualitativos %}
                                         <div class="col-md-4">
-                                            <div class="p-3 border-left border-success">
-                                                <h6 class="text-success"><i class="fas fa-thumbs-up mr-1"></i>Linguagem Emocional Positiva</h6>
-                                                <p class="small">Clientes usam termos emocionalmente carregados como "adorei", "maravilhoso" e "surpreendente" ao falar sobre a experiência de unboxing, indicando forte conexão emocional com a marca.</p>
+                                            <div class="p-3 border-left border-{{ insight.classe|default('primary') }}">
+                                                <h6 class="text-{{ insight.classe|default('primary') }}"><i class="fas fa-{{ insight.icone|default('comment') }} mr-1"></i>{{ insight.titulo }}</h6>
+                                                <p class="small">{{ insight.descricao }}</p>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
-                                            <div class="p-3 border-left border-warning">
-                                                <h6 class="text-warning"><i class="fas fa-exclamation-circle mr-1"></i>Expectativas Não Atendidas</h6>
-                                                <p class="small">Feedbacks negativos frequentemente mencionam "não era o que eu esperava", sugerindo um desalinhamento entre comunicação de marketing e experiência real do produto.</p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="p-3 border-left border-primary">
-                                                <h6 class="text-primary"><i class="fas fa-lightbulb mr-1"></i>Sugestões de Melhoria</h6>
-                                                <p class="small">Clientes oferecem sugestões específicas sobre como melhorar o produto e a experiência, revelando oportunidades de aprimoramento não capturadas em avaliações tradicionais.</p>
-                                            </div>
-                                        </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -1405,6 +1369,18 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Dados JSON fornecidos pelo backend para acesso global
+        var dados_json = '{{ dados_json|safe }}';
+        
+        // Fazer o parse dos dados JSON para uso global
+        try {
+            window.dados_dashboard = JSON.parse(dados_json);
+            console.log("Dados do dashboard disponibilizados globalmente:", window.dados_dashboard);
+        } catch (e) {
+            console.error("Erro ao analisar dados_json:", e);
+        }
+    </script>
     <script>
                     // Inicializar tooltips e popovers
                     $(function () {
@@ -1511,11 +1487,18 @@
                     "palavras_top": "{% if graficos.palavras_top %}Disponível{% else %}Ausente{% endif %}",
                     "comparacao_ponderacao": "{% if graficos.comparacao_ponderacao %}Disponível{% else %}Ausente{% endif %}"
                 });
+                
                 try {
+                    // Log para debug
+                    console.log("Iniciando renderização de gráficos");
+                    
                     // Gráfico de pizza de sentimentos
                     {% if graficos.sentimento_pie %}
                         try {
+                            console.log("Preparando para renderizar gráfico de pizza");
                             var pie_data = {{ graficos.sentimento_pie|safe }};
+                            console.log("Dados para gráfico de pizza:", pie_data);
+                            
                             // Melhorar o layout do gráfico
                             if (pie_data && pie_data.layout) {
                                 pie_data.layout.title = null; // Remover título do gráfico (já está no card)
@@ -1526,6 +1509,7 @@
                                 pie_data.layout.paper_bgcolor = 'rgba(0,0,0,0)';
                                 pie_data.layout.plot_bgcolor = 'rgba(0,0,0,0)';
                             }
+                            
                             // Melhorar o traço do gráfico
                             if (pie_data && pie_data.data && pie_data.data.length > 0) {
                                 pie_data.data[0].hole = 0.4;
@@ -1533,17 +1517,23 @@
                                 pie_data.data[0].hoverinfo = 'label+percent';
                                 pie_data.data[0].textfont = { size: 14, color: '#fff' };
                             }
+                            
                             Plotly.newPlot('sentimento-pie', pie_data.data, pie_data.layout, {responsive: true});
                             console.log("Gráfico de pizza de sentimentos renderizado com sucesso");
                         } catch (error) {
                             console.error("Erro ao renderizar gráfico de pizza:", error);
                         }
+                    {% else %}
+                        console.warn("Dados para o gráfico sentimento_pie não estão disponíveis");
                     {% endif %}
                     
                     // Gráfico de evolução temporal
                     {% if graficos.sentimento_tempo %}
                         try {
+                            console.log("Preparando para renderizar gráfico de evolução temporal");
                             var tempo_data = {{ graficos.sentimento_tempo|safe }};
+                            console.log("Dados para gráfico temporal:", tempo_data);
+                            
                             // Melhorar o layout do gráfico
                             if (tempo_data && tempo_data.layout) {
                                 tempo_data.layout.title = null; // Remover título do gráfico
@@ -1557,75 +1547,110 @@
                                 tempo_data.layout.xaxis = { 
                                     title: 'Data',
                                     gridcolor: 'rgba(0,0,0,0.1)'
-                                }; // Adicionado o fechamento de chave e ponto-e-vírgula
+                                };
                             }
+                            
                             Plotly.newPlot('sentimento-tempo', tempo_data.data, tempo_data.layout, {responsive: true});
                             console.log("Gráfico de evolução temporal renderizado com sucesso");
                         } catch (error) {
                             console.error("Erro ao renderizar gráfico de evolução temporal:", error);
                         }
+                    {% else %}
+                        console.warn("Dados para o gráfico sentimento_tempo não estão disponíveis");
                     {% endif %}
                     
                     // Gráfico de palavras mais frequentes
                     {% if graficos.palavras_top %}
                         try {
+                            console.log("Preparando para renderizar gráfico de palavras mais frequentes");
                             var palavras_data = {{ graficos.palavras_top|safe }};
+                            console.log("Dados para gráfico de palavras:", palavras_data);
+                            
                             Plotly.newPlot('palavras-top', palavras_data.data, palavras_data.layout, {responsive: true});
                             console.log("Gráfico de palavras mais frequentes renderizado com sucesso");
                         } catch (error) {
                             console.error("Erro ao renderizar gráfico de palavras mais frequentes:", error);
                         }
+                    {% else %}
+                        console.warn("Dados para o gráfico palavras_top não estão disponíveis");
                     {% endif %}
                     
                     // Gráfico de radar de aspectos (novo)
                     {% if graficos.aspectos_radar %}
-                        var radar_data = {{ graficos.aspectos_radar|safe }};
-                        Plotly.newPlot('aspectos-radar', radar_data.data, radar_data.layout, {responsive: true});
+                        try {
+                            console.log("Preparando para renderizar gráfico de radar de aspectos");
+                            var radar_data = {{ graficos.aspectos_radar|safe }};
+                            console.log("Dados para gráfico de radar:", radar_data);
+                            
+                            Plotly.newPlot('aspectos-radar', radar_data.data, radar_data.layout, {responsive: true});
+                            console.log("Gráfico de radar de aspectos renderizado com sucesso");
+                        } catch (error) {
+                            console.error("Erro ao renderizar gráfico de radar de aspectos:", error);
+                        }
+                    {% else %}
+                        console.warn("Dados para o gráfico aspectos_radar não estão disponíveis");
                     {% endif %}
                     
                     // Gráfico de sentimento por aspecto (novo)
                     {% if graficos.sentimento_por_aspecto %}
-                        var sentimento_aspecto_data = {{ graficos.sentimento_por_aspecto|safe }};
-                        Plotly.newPlot('sentimento-por-aspecto', sentimento_aspecto_data.data, sentimento_aspecto_data.layout, {responsive: true});
+                        try {
+                            console.log("Preparando para renderizar gráfico de sentimento por aspecto");
+                            var sentimento_aspecto_data = {{ graficos.sentimento_por_aspecto|safe }};
+                            console.log("Dados para gráfico de sentimento por aspecto:", sentimento_aspecto_data);
+                            
+                            Plotly.newPlot('sentimento-por-aspecto', sentimento_aspecto_data.data, sentimento_aspecto_data.layout, {responsive: true});
+                            console.log("Gráfico de sentimento por aspecto renderizado com sucesso");
+                        } catch (error) {
+                            console.error("Erro ao renderizar gráfico de sentimento por aspecto:", error);
+                        }
+                    {% else %}
+                        console.warn("Dados para o gráfico sentimento_por_aspecto não estão disponíveis");
                     {% endif %}
                     
                     // Gráfico de comparação de sentimentos original vs ponderado (novo)
                     {% if graficos.comparacao_ponderacao %}
-                        setTimeout(function() {
-                            try {
-                                var comparacao_data = {{ graficos.comparacao_ponderacao|safe }};
-                                var element = document.getElementById('comparacao-ponderacao');
-                                
-                                if (element) {
-                                    element.style.height = '350px';
-                                    element.style.display = 'block';
-                                    Plotly.newPlot('comparacao-ponderacao', comparacao_data.data, comparacao_data.layout, {responsive: true});
-                                    console.log("Gráfico de comparação renderizado com sucesso");
-                                } else {
-                                    console.error("Elemento comparacao-ponderacao não encontrado no DOM");
-                                }
-                            } catch (err) {
-                                console.error("Erro ao renderizar gráfico de comparação:", err);
+                        try {
+                            console.log("Preparando para renderizar gráfico de comparação de ponderação");
+                            var comparacao_data = {{ graficos.comparacao_ponderacao|safe }};
+                            console.log("Dados para gráfico de comparação:", comparacao_data);
+                            
+                            var element = document.getElementById('comparacao-ponderacao');
+                            if (element) {
+                                element.style.height = '350px';
+                                element.style.display = 'block';
+                                Plotly.newPlot('comparacao-ponderacao', comparacao_data.data, comparacao_data.layout, {responsive: true});
+                                console.log("Gráfico de comparação renderizado com sucesso");
+                            } else {
+                                console.error("Elemento comparacao-ponderacao não encontrado no DOM");
                             }
-                        }, 500);
+                        } catch (error) {
+                            console.error("Erro ao renderizar gráfico de comparação:", error);
+                        }
+                    {% else %}
+                        console.warn("Dados para o gráfico comparacao_ponderacao não estão disponíveis");
                     {% endif %}
                     
                     // Gráfico de taxa de concordância (novo)
                     {% if graficos.concordancia_pie %}
-                        setTimeout(function() {
-                            try {
-                                var concordancia_data = {{ graficos.concordancia_pie|safe }};
-                                var element = document.getElementById('concordancia-pie');
-                                
-                                if (element) {
-                                    element.style.height = '350px';
-                                    element.style.display = 'block';
-                                    Plotly.newPlot('concordancia-pie', concordancia_data.data, concordancia_data.layout, {responsive: true});
-                                }
-                            } catch (err) {
-                                console.error("Erro ao renderizar gráfico de concordância:", err);
+                        try {
+                            console.log("Preparando para renderizar gráfico de concordância");
+                            var concordancia_data = {{ graficos.concordancia_pie|safe }};
+                            console.log("Dados para gráfico de concordância:", concordancia_data);
+                            
+                            var element = document.getElementById('concordancia-pie');
+                            if (element) {
+                                element.style.height = '350px';
+                                element.style.display = 'block';
+                                Plotly.newPlot('concordancia-pie', concordancia_data.data, concordancia_data.layout, {responsive: true});
+                                console.log("Gráfico de concordância renderizado com sucesso");
+                            } else {
+                                console.error("Elemento concordancia-pie não encontrado no DOM");
                             }
-                        }, 500);
+                        } catch (error) {
+                            console.error("Erro ao renderizar gráfico de concordância:", error);
+                        }
+                    {% else %}
+                        console.warn("Dados para o gráfico concordancia_pie não estão disponíveis");
                     {% endif %}
                 } catch (e) {
                     console.error("Erro ao renderizar gráficos:", e);
@@ -1663,156 +1688,5 @@
     
     <!-- Script de correções para o dashboard -->
     <script src="{{ url_for('static', filename='dashboard-correcoes.js') }}"></script>
-
-    <!-- Script de recuperação para gráficos que não carregaram -->
-    <script>
-        // Verificar após 2 segundos se os gráficos foram carregados
-        setTimeout(function() {
-            // Verificar containers vazios e tentar recuperá-los
-            document.querySelectorAll('.chart-container').forEach(function(container) {
-                if (container.innerHTML.trim() === '') {
-                    console.warn('Container vazio detectado:', container.id);
-                    
-                    // Tentar recuperar com dados de exemplo
-                    switch(container.id) {
-                        case 'sentimento-pie':
-                            try {
-                                var data = [{
-                                    values: [60, 25, 15],
-                                    labels: ['Positivo', 'Neutro', 'Negativo'],
-                                    type: 'pie',
-                                    hole: 0.4,
-                                    marker: {
-                                        colors: ['#2ecc71', '#f39c12', '#e74c3c']
-                                    },
-                                    textinfo: 'percent',
-                                    hoverinfo: 'label+percent'
-                                }];
-                                
-                                var layout = {
-                                    height: 300,
-                                    margin: { l: 30, r: 30, t: 10, b: 10 },
-                                    legend: { orientation: "h", y: -0.15 },
-                                    paper_bgcolor: 'rgba(0,0,0,0)',
-                                    plot_bgcolor: 'rgba(0,0,0,0)'
-                                };
-                                
-                                Plotly.newPlot('sentimento-pie', data, layout, {responsive: true});
-                                console.log('Gráfico sentimento-pie recuperado com dados de exemplo');
-                            } catch(e) {
-                                console.error('Falha na recuperação do gráfico sentimento-pie:', e);
-                            }
-                            break;
-                            
-                        case 'sentimento-tempo':
-                            try {
-                                var data = [
-                                    {
-                                        x: ['2023-09-01', '2023-09-02', '2023-09-03', '2023-09-04', '2023-09-05'],
-                                        y: [12, 15, 18, 20, 17],
-                                        mode: 'lines+markers',
-                                        name: 'Positivo',
-                                        line: {color: '#2ecc71'}
-                                    },
-                                    {
-                                        x: ['2023-09-01', '2023-09-02', '2023-09-03', '2023-09-04', '2023-09-05'],
-                                        y: [8, 10, 7, 9, 12],
-                                        mode: 'lines+markers',
-                                        name: 'Neutro',
-                                        line: {color: '#f39c12'}
-                                    },
-                                    {
-                                        x: ['2023-09-01', '2023-09-02', '2023-09-03', '2023-09-04', '2023-09-05'],
-                                        y: [5, 3, 6, 4, 8],
-                                        mode: 'lines+markers',
-                                        name: 'Negativo',
-                                        line: {color: '#e74c3c'}
-                                    }
-                                ];
-                                
-                                var layout = {
-                                    height: 300,
-                                    margin: { l: 50, r: 20, t: 10, b: 40 },
-                                    legend: { orientation: "h", y: -0.15 },
-                                    yaxis: { title: 'Quantidade', gridcolor: 'rgba(0,0,0,0.1)' },
-                                    xaxis: { title: 'Data', gridcolor: 'rgba(0,0,0,0.1)' }
-                                };
-                                
-                                Plotly.newPlot('sentimento-tempo', data, layout, {responsive: true});
-                                console.log('Gráfico sentimento-tempo recuperado com dados de exemplo');
-                            } catch(e) {
-                                console.error('Falha na recuperação do gráfico sentimento-tempo:', e);
-                            }
-                            break;
-                            
-                        case 'palavras-top':
-                            try {
-                                var data = [{
-                                    type: 'bar',
-                                    x: [25, 18, 15, 12, 10],
-                                    y: ['excelente', 'bom', 'atendimento', 'produto', 'qualidade'],
-                                    orientation: 'h',
-                                    marker: {
-                                        color: ['#3498db', '#3498db', '#3498db', '#3498db', '#3498db']
-                                    }
-                                }];
-                                
-                                var layout = {
-                                    height: 300,
-                                    margin: { l: 120, r: 20, t: 30, b: 40 },
-                                    xaxis: {title: 'Frequência'},
-                                    yaxis: {title: ''}
-                                };
-                                
-                                Plotly.newPlot('palavras-top', data, layout, {responsive: true});
-                                console.log('Gráfico palavras-top recuperado com dados de exemplo');
-                            } catch(e) {
-                                console.error('Falha na recuperação do gráfico palavras-top:', e);
-                            }
-                            break;
-                            
-                        case 'comparacao-ponderacao':
-                            try {
-                                var data = [
-                                    {
-                                        x: ['positivo', 'neutro', 'negativo'],
-                                        y: [17, 20, 26],
-                                        name: 'Análise Original',
-                                        type: 'bar',
-                                        marker: {color: '#3498db'}
-                                    },
-                                    {
-                                        x: ['positivo', 'neutro', 'negativo'],
-                                        y: [25, 22, 16],
-                                        name: 'Análise Ponderada',
-                                        type: 'bar',
-                                        marker: {color: '#9b59b6'}
-                                    }
-                                ];
-                                
-                                var layout = {
-                                    title: 'Comparação: Sentimento Original vs Ponderado',
-                                    barmode: 'group',
-                                    xaxis: {title: 'Sentimento'},
-                                    yaxis: {title: 'Quantidade'},
-                                    height: 350
-                                };
-                                
-                                var element = document.getElementById('comparacao-ponderacao');
-                                if (element) {
-                                    element.style.height = '350px';
-                                    element.style.display = 'block';
-                                    Plotly.newPlot('comparacao-ponderacao', data, layout, {responsive: true});
-                                    console.log('Gráfico comparacao-ponderacao recuperado com dados de exemplo');
-                                }
-                            } catch(e) {
-                                console.error('Falha na recuperação do gráfico comparacao-ponderacao:', e);
-                            }
-                            break;
-                    }
-                }
-            });
-        }, 2000);
-    </script>
 </body>
 </html>

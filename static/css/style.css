@@ -1,0 +1,100 @@
+/* Estilos básicos para a página de diagnóstico */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.card {
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+/* Estilos adicionais para os cards de status */
+.status-card {
+    transition: all 0.3s ease;
+}
+
+.status-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Animação para os spinners de carregamento */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner-border {
+    animation: spin 1s linear infinite;
+}
+
+/* Estilos para os botões */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+/* Melhorias para os alertas */
+.alert {
+    border-radius: 8px;
+    border-left-width: 4px;
+}
+
+.alert-success {
+    border-left-color: #28a745;
+}
+
+.alert-warning {
+    border-left-color: #ffc107;
+}
+
+.alert-danger {
+    border-left-color: #dc3545;
+}
+
+.alert-info {
+    border-left-color: #17a2b8;
+}
+
+/* Estilo para o container de JSON */
+.json-output {
+    font-family: 'Courier New', monospace;
+    background-color: #f1f1f1;
+    border-radius: 8px;
+    padding: 15px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* Estilos para o accordion */
+.accordion .card-header {
+    cursor: pointer;
+    padding: 0;
+}
+
+.accordion .btn-link {
+    color: #0056b3;
+    text-decoration: none;
+    width: 100%;
+    text-align: left;
+    padding: 12px 15px;
+}
+
+.accordion .btn-link:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.accordion .card-body {
+    padding: 20px;
+} 

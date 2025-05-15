@@ -4,234 +4,302 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagnóstico do Sistema</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        .card {
-            margin-bottom: 20px;
-        }
-        .status-success {
-            color: #28a745;
-        }
-        .status-warning {
-            color: #ffc107;
-        }
-        .status-danger {
-            color: #dc3545;
-        }
-        .action-card {
-            background-color: #f8f9fa;
-            border-left: 4px solid #007bff;
-        }
-        .success-message {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
+        .card-status-ok { border-left: 5px solid #28a745; }
+        .card-status-warning { border-left: 5px solid #ffc107; }
+        .card-status-error { border-left: 5px solid #dc3545; }
+        .status-badge-ok { background-color: #28a745; color: white; }
+        .status-badge-warning { background-color: #ffc107; color: black; }
+        .status-badge-error { background-color: #dc3545; color: white; }
+        .component-icon { font-size: 2rem; opacity: 0.7; }
+        .json-output { 
+            background-color: #f8f9fa; 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-family: monospace;
+            height: 300px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Sistema de Análise de Sentimentos</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/historico">Histórico</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/diagnostico">Diagnóstico</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-4">
-        <h1 class="mb-4">Diagnóstico do Sistema</h1>
-        
-        {% if mensagem %}
-        <div class="success-message">
-            <h4>Resultado da Operação</h4>
-            <p>{{ mensagem }}</p>
-        </div>
-        {% endif %}
-        
-        <div class="card action-card">
-            <div class="card-header bg-primary text-white">
-                Ações de Manutenção
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">Download do Modelo</h5>
-                                <p class="card-text">Forçar o download do modelo XLM-RoBERTa para análise de sentimentos.</p>
-                                <a href="/baixar-modelo" class="btn btn-primary">Baixar Modelo</a>
-                            </div>
-                        </div>
+        <h1>Diagnóstico do Sistema</h1>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h2>Status do Sistema</h2>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">Reiniciar Modelo</h5>
-                                <p class="card-text">Reiniciar o analisador de sentimentos após o download.</p>
-                                <a href="/reiniciar-modelo" class="btn btn-warning">Reiniciar Modelo</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Verificar Diretórios</h5>
-                        <p class="card-text">Verificar e criar diretórios necessários para o funcionamento da aplicação.</p>
-                        <a href="/criar_template_diagnostico" class="btn btn-info">Verificar Templates</a>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>Status Geral:</h3>
+                            <span class="badge bg-{% if info.status == 'online' %}success{% else %}danger{% endif %} p-2">
+                                {{ info.status }}
+                            </span>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h4>Componentes:</h4>
+                        <div class="list-group">
+                            {% for component, status in info.components.items() %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ component }}</span>
+                                <span class="badge {% if status %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if status %}OK{% else %}Indisponível{% endif %}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h2>Status do Modelo XLM-RoBERTa</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>XLM-RoBERTa Disponível:</h3>
+                            <span class="badge {% if info.components.sentiment_analyzer %}bg-{% if info.xlm_roberta_ativo %}success{% else %}warning{% endif %}{% else %}bg-danger{% endif %} p-2">
+                                {% if info.components.sentiment_analyzer %}
+                                    {% if info.xlm_roberta_ativo %}
+                                        Sim
+                                    {% else %}
+                                        Não (usando fallback)
+                                    {% endif %}
+                                {% else %}
+                                    Indisponível
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="alert {% if not info.xlm_roberta_ativo %}alert-warning{% else %}alert-success{% endif %} mt-3">
+                            {% if info.xlm_roberta_ativo %}
+                                <strong>Tudo certo!</strong> O modelo avançado XLM-RoBERTa está funcionando corretamente.
+                            {% else %}
+                                <strong>Aviso!</strong> O modelo avançado XLM-RoBERTa não está disponível. Estamos usando um modelo básico para análise de sentimento.
+                                Clique em "Baixar Modelo" para resolver este problema.
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            <button id="baixarModelo" class="btn btn-primary">Baixar Modelo</button>
+                            <button id="reiniciarModelo" class="btn btn-secondary">Reiniciar Modelo</button>
+                        </div>
+                        
+                        <div id="statusOperacao" class="alert alert-info mt-3 d-none">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                            <span id="statusTexto">Processando...</span>
+                        </div>
+                        
+                        <!-- Instruções para resolução de problemas -->
+                        <div class="mt-4">
+                            <h5>Instruções para resolução de problemas:</h5>
+                            <div class="accordion" id="troubleshootingAccordion">
+                                <div class="card">
+                                    <div class="card-header" id="headingOne">
+                                        <h2 class="mb-0">
+                                            <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                                1. Baixar o modelo XLM-RoBERTa
+                                            </button>
+                                        </h2>
+                                    </div>
+                                    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#troubleshootingAccordion">
+                                        <div class="card-body">
+                                            <p>O modelo XLM-RoBERTa é necessário para uma análise de sentimento avançada e precisa. Para baixá-lo:</p>
+                                            <ol>
+                                                <li>Clique no botão "Baixar Modelo" acima</li>
+                                                <li>Aguarde o download concluir (pode levar alguns minutos)</li>
+                                                <li>O sistema reiniciará automaticamente o analisador de sentimento</li>
+                                            </ol>
+                                            <p>Certifique-se de que sua internet esteja funcionando corretamente, pois o download requer acesso ao serviço Hugging Face.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header" id="headingTwo">
+                                        <h2 class="mb-0">
+                                            <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                                2. Problemas comuns e soluções
+                                            </button>
+                                        </h2>
+                                    </div>
+                                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#troubleshootingAccordion">
+                                        <div class="card-body">
+                                            <ul>
+                                                <li><strong>Erro de conexão:</strong> Verifique sua conexão com a internet e tente novamente.</li>
+                                                <li><strong>Erro de permissão:</strong> Certifique-se de que o usuário do sistema tenha permissões de escrita no diretório do projeto.</li>
+                                                <li><strong>Bibliotecas ausentes:</strong> Verifique se as dependências <code>transformers</code> e <code>torch</code> estão instaladas corretamente.</li>
+                                                <li><strong>Memória insuficiente:</strong> O modelo requer pelo menos 2GB de RAM disponível.</li>
+                                            </ul>
+                                            <p>Se o botão "Baixar Modelo" falhar, você pode tentar o botão "Reiniciar Modelo" para usar o modelo já baixado (se existir).</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header" id="headingThree">
+                                        <h2 class="mb-0">
+                                            <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                                3. Download manual e instalação
+                                            </button>
+                                        </h2>
+                                    </div>
+                                    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#troubleshootingAccordion">
+                                        <div class="card-body">
+                                            <p>Para download manual do modelo:</p>
+                                            <ol>
+                                                <li>Acesse <a href="https://huggingface.co/cardiffnlp/twitter-xlm-roberta-base-sentiment" target="_blank">cardiffnlp/twitter-xlm-roberta-base-sentiment</a></li>
+                                                <li>Baixe os arquivos do modelo</li>
+                                                <li>Coloque-os no diretório <code>models/cardiffnlp-xlm-roberta</code> do aplicativo</li>
+                                                <li>Clique em "Reiniciar Modelo" para carregar o modelo baixado manualmente</li>
+                                            </ol>
+                                            <p>Alternativamente, você pode usar o comando pip para instalar as dependências:</p>
+                                            <pre>pip install transformers torch huggingface_hub</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                Status do Modelo XLM-RoBERTa
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Informações do Modelo</h5>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        XLM-RoBERTa Disponível: 
-                        <span class="{% if modelo.xlm_roberta_disponivel %}status-success{% else %}status-danger{% endif %}">
-                            {{ "Sim" if modelo.xlm_roberta_disponivel else "Não" }}
-                        </span>
-                    </li>
-                    <li class="list-group-item">
-                        Modelo Carregado: 
-                        <span class="{% if modelo.modelo_carregado %}status-success{% else %}status-danger{% endif %}">
-                            {{ "Sim" if modelo.modelo_carregado else "Não" }}
-                        </span>
-                    </li>
-                    <li class="list-group-item">
-                        Versão Python: {{ modelo.python_version }}
-                    </li>
-                    <li class="list-group-item">
-                        Versão Transformers: {{ modelo.transformers_version }}
-                    </li>
-                    <li class="list-group-item">
-                        Teste do Modelo: 
-                        <span class="{% if modelo.teste_sucesso %}status-success{% else %}status-danger{% endif %}">
-                            {{ "Sucesso" if modelo.teste_sucesso else "Falha" }}
-                        </span>
-                        {% if modelo.teste_sucesso %}
-                            <div class="mt-2">
-                                <strong>Label:</strong> {{ modelo.teste_resultado.label }}<br>
-                                <strong>Score:</strong> {{ "%.4f"|format(modelo.teste_resultado.score) }}<br>
-                                <strong>Tempo:</strong> {{ modelo.teste_resultado.tempo }}
-                            </div>
-                        {% else %}
-                            <div class="mt-2 status-danger">
-                                <strong>Erro:</strong> {{ modelo.teste_erro }}
-                            </div>
-                        {% endif %}
-                    </li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                Informações do Sistema
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Detalhes do Sistema</h5>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><strong>Sistema:</strong> {{ sistema.sistema }}</li>
-                    <li class="list-group-item"><strong>Release:</strong> {{ sistema.release }}</li>
-                    <li class="list-group-item"><strong>Versão:</strong> {{ sistema.versao }}</li>
-                    <li class="list-group-item"><strong>Arquitetura:</strong> {{ sistema.arquitetura[0] }} ({{ sistema.arquitetura[1] }})</li>
-                    <li class="list-group-item"><strong>Processador:</strong> {{ sistema.processador }}</li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                Status dos Requisitos
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Bibliotecas Instaladas</h5>
-                <ul class="list-group list-group-flush">
-                    {% for lib, status in requisitos.items() %}
-                    <li class="list-group-item">
-                        {{ lib }}: 
-                        <span class="{% if status %}status-success{% else %}status-danger{% endif %}">
-                            {{ "Instalado" if status else "Não Instalado" }}
-                        </span>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header bg-warning text-dark">
-                Status dos Diretórios
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Diretórios Necessários</h5>
-                <ul class="list-group list-group-flush">
-                    {% for dir, exists in diretorios.items() %}
-                    <li class="list-group-item">
-                        {{ dir }}: 
-                        <span class="{% if exists %}status-success{% else %}status-danger{% endif %}">
-                            {{ "Existe" if exists else "Não Existe" }}
-                        </span>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header bg-secondary text-white">
-                Testes Adicionais
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">Testar Modelo Manualmente</h5>
-                <div class="form-group">
-                    <label for="testText">Texto para testar:</label>
-                    <textarea class="form-control" id="testText" rows="3" placeholder="Digite um texto para analisar..."></textarea>
-                </div>
-                <button id="testButton" class="btn btn-primary">Analisar Sentimento</button>
-                
-                <div id="testResult" class="mt-3" style="display: none;">
-                    <h6>Resultado da Análise:</h6>
-                    <pre id="resultJson" class="bg-light p-3"></pre>
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h2>Informações Detalhadas</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h4>Solicitar Diagnóstico Detalhado:</h4>
+                            <button id="solicitarDiagnostico" class="btn btn-info">Obter Diagnóstico Detalhado</button>
+                        </div>
+                        
+                        <h4>Resultado do Diagnóstico:</h4>
+                        <pre id="resultJson" class="json-output">
+                            // Os resultados do diagnóstico detalhado aparecerão aqui
+                        </pre>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="mt-4 mb-4">
-            <a href="/" class="btn btn-secondary">Voltar para Home</a>
         </div>
     </div>
-    
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $("#testButton").click(function() {
-                const texto = $("#testText").val();
-                if (!texto) {
-                    alert("Por favor, digite um texto para analisar.");
-                    return;
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Botão para baixar modelo
+            document.getElementById('baixarModelo').addEventListener('click', function() {
+                const statusDiv = document.getElementById('statusOperacao');
+                const statusTexto = document.getElementById('statusTexto');
                 
-                $("#testButton").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analisando...');
+                statusDiv.classList.remove('d-none', 'alert-success', 'alert-danger');
+                statusDiv.classList.add('alert-info');
+                statusTexto.textContent = 'Baixando modelo XLM-RoBERTa... Esta operação pode levar alguns minutos.';
                 
-                $.ajax({
-                    url: "/api/testar-modelo",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify({texto: texto}),
-                    success: function(response) {
-                        $("#resultJson").text(JSON.stringify(response, null, 2));
-                        $("#testResult").show();
-                    },
-                    error: function(xhr, status, error) {
-                        $("#resultJson").text("Erro: " + error);
-                        $("#testResult").show();
-                    },
-                    complete: function() {
-                        $("#testButton").prop("disabled", false).text("Analisar Sentimento");
-                    }
-                });
+                fetch('/baixar-modelo')
+                    .then(response => response.json())
+                    .then(data => {
+                        statusDiv.classList.remove('alert-info');
+                        if (data.success) {
+                            statusDiv.classList.add('alert-success');
+                            statusTexto.textContent = 'Modelo baixado com sucesso! Recarregue a página para ver as mudanças.';
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 3000);
+                        } else {
+                            statusDiv.classList.add('alert-danger');
+                            statusTexto.textContent = `Erro: ${data.message}`;
+                        }
+                    })
+                    .catch(error => {
+                        statusDiv.classList.remove('alert-info');
+                        statusDiv.classList.add('alert-danger');
+                        statusTexto.textContent = `Erro ao comunicar com o servidor: ${error}`;
+                    });
+            });
+            
+            // Botão para reiniciar modelo
+            document.getElementById('reiniciarModelo').addEventListener('click', function() {
+                const statusDiv = document.getElementById('statusOperacao');
+                const statusTexto = document.getElementById('statusTexto');
+                
+                statusDiv.classList.remove('d-none', 'alert-success', 'alert-danger');
+                statusDiv.classList.add('alert-info');
+                statusTexto.textContent = 'Reiniciando modelo de análise de sentimento...';
+                
+                fetch('/reiniciar-modelo')
+                    .then(response => response.json())
+                    .then(data => {
+                        statusDiv.classList.remove('alert-info');
+                        if (data.success) {
+                            statusDiv.classList.add('alert-success');
+                            statusTexto.textContent = 'Modelo reiniciado com sucesso! Recarregue a página para ver as mudanças.';
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 3000);
+                        } else {
+                            statusDiv.classList.add('alert-danger');
+                            statusTexto.textContent = `Erro: ${data.message}`;
+                        }
+                    })
+                    .catch(error => {
+                        statusDiv.classList.remove('alert-info');
+                        statusDiv.classList.add('alert-danger');
+                        statusTexto.textContent = `Erro ao comunicar com o servidor: ${error}`;
+                    });
+            });
+            
+            // Botão para solicitar diagnóstico detalhado
+            document.getElementById('solicitarDiagnostico').addEventListener('click', function() {
+                document.getElementById('resultJson').textContent = "Carregando diagnóstico...";
+                
+                fetch('/diagnostico')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('resultJson').textContent = JSON.stringify(data, null, 2);
+                    })
+                    .catch(error => {
+                        document.getElementById('resultJson').textContent = `Erro: ${error}`;
+                    });
             });
         });
     </script>

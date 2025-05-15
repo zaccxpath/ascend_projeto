@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Feedbacks de Varejo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .sentiment-positive {
+            background-color: rgba(46, 204, 113, 0.2);
+            border-left: 4px solid #2ecc71;
+        }
+        .sentiment-negative {
+            background-color: rgba(231, 76, 60, 0.2);
+            border-left: 4px solid #e74c3c;
+        }
+        .sentiment-neutral {
+            background-color: rgba(243, 156, 18, 0.2);
+            border-left: 4px solid #f39c12;
+        }
+        .sarcasm-badge {
+            background-color: #9b59b6;
+        }
+        .category-badge {
+            background-color: #3498db;
+        }
+        .confidence-high {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+        .confidence-medium {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .confidence-low {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .feedback-card {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        #examples button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-4">
+        <h1 class="mb-4">Análise de Feedbacks de Varejo</h1>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Testar Feedback</h4>
+            </div>
+            <div class="card-body">
+                <form id="feedback-form">
+                    <div class="mb-3">
+                        <label for="feedback-text" class="form-label">Digite ou cole seu feedback de varejo:</label>
+                        <textarea class="form-control" id="feedback-text" rows="4" placeholder="Escreva aqui o feedback do cliente..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="category-select" class="form-label">Categoria (opcional):</label>
+                        <select class="form-control" id="category-select">
+                            <option value="">Automática (detectada pelo sistema)</option>
+                            <option value="entrega_logistica">Entrega e Logística</option>
+                            <option value="produto">Produto</option>
+                            <option value="atendimento">Atendimento</option>
+                            <option value="cobranca_pagamento">Cobrança e Pagamento</option>
+                            <option value="site_app">Site/App</option>
+                            <option value="promocoes_propaganda">Promoções e Propaganda</option>
+                            <option value="trocas_devolucoes">Trocas e Devoluções</option>
+                            <option value="loja_fisica">Loja Física</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Analisar Feedback</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Exemplos de Feedbacks</h4>
+            </div>
+            <div class="card-body" id="examples">
+                <button class="btn btn-outline-secondary example-btn" data-text="Produto de excelente qualidade, entrega rápida e atendimento muito eficiente. Recomendo a loja!">Positivo Simples</button>
+                <button class="btn btn-outline-secondary example-btn" data-text="Produto defeituoso, não funciona como deveria. Estou muito decepcionado com a compra.">Negativo Simples</button>
+                <button class="btn btn-outline-secondary example-btn" data-text="O produto chegou em apenas 15 dias depois do prazo. Excelente serviço de entrega!">Sarcasmo - Entrega</button>
+                <button class="btn btn-outline-secondary example-btn" data-text="Atendimento maravilhoso, fiquei só 40 minutos esperando para ser atendido e ninguém sabia resolver meu problema.">Sarcasmo - Atendimento</button>
+                <button class="btn btn-outline-secondary example-btn" data-text="O produto quebrou após 3 dias de uso. Incrível a durabilidade!">Sarcasmo - Produto</button>
+                <button class="btn btn-outline-secondary example-btn" data-text="Site travou apenas 5 vezes durante a compra. Experiência de usuário fantástica!">Sarcasmo - Site</button>
+                <button class="btn btn-outline-secondary example-btn" data-text="A embalagem veio danificada, peças faltando e não tinha manual. Fora isso, o produto é bom.">Negativo com elogio</button>
+                <button class="btn btn-outline-secondary example-btn" data-text="Fui cobrado duas vezes pelo mesmo produto. Quando reclamei, disseram que resolveriam em 30 dias. Excelente política de reembolso.">Sarcasmo - Cobrança</button>
+            </div>
+        </div>
+        
+        <div id="results" class="d-none">
+            <h3>Resultado da Análise</h3>
+            <div class="alert alert-info">
+                <p id="processing-message"><i class="bi bi-info-circle"></i> Processando análise, por favor aguarde...</p>
+            </div>
+            
+            <div id="result-container" class="card d-none">
+                <div class="card-body feedback-card">
+                    <h5 class="card-title">Feedback Analisado</h5>
+                    <p id="analyzed-text" class="card-text"></p>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">Análise de Sentimento</div>
+                                <div class="card-body">
+                                    <p>Sentimento: <span id="sentiment-result" class="badge"></span></p>
+                                    <p>Confiança: <span id="confidence-result"></span></p>
+                                    <p>Categoria: <span id="category-result" class="badge category-badge"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">Detecção de Sarcasmo</div>
+                                <div class="card-body">
+                                    <p>Detectado: <span id="sarcasm-detected"></span></p>
+                                    <p>Nível: <span id="sarcasm-level"></span></p>
+                                    <p>Probabilidade: <span id="sarcasm-probability"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-header">Aspectos Identificados</div>
+                        <div class="card-body">
+                            <div id="aspects-container"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">Detalhes Técnicos</div>
+                        <div class="card-body">
+                            <pre id="technical-details" class="bg-light p-3" style="max-height: 200px; overflow-y: auto;"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manipular envio do formulário
+            document.getElementById('feedback-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const feedbackText = document.getElementById('feedback-text').value.trim();
+                const category = document.getElementById('category-select').value;
+                
+                if (!feedbackText) {
+                    alert('Por favor, digite um feedback para analisar.');
+                    return;
+                }
+                
+                analyzeRetailFeedback(feedbackText, category);
+            });
+            
+            // Configurar botões de exemplo
+            document.querySelectorAll('.example-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const exampleText = this.getAttribute('data-text');
+                    document.getElementById('feedback-text').value = exampleText;
+                    analyzeRetailFeedback(exampleText, '');
+                });
+            });
+            
+            // Função para analisar feedback
+            function analyzeRetailFeedback(text, category) {
+                // Mostrar área de resultados e mensagem de processamento
+                document.getElementById('results').classList.remove('d-none');
+                document.getElementById('result-container').classList.add('d-none');
+                document.getElementById('processing-message').textContent = 'Processando análise, por favor aguarde...';
+                
+                // Preparar dados para envio
+                const requestData = {
+                    texto: text
+                };
+                
+                if (category) {
+                    requestData.categoria = category;
+                }
+                
+                // Fazer requisição para a API
+                fetch('/api/analisar-varejo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sucesso) {
+                        displayResults(data);
+                    } else {
+                        document.getElementById('processing-message').textContent = 'Erro: ' + (data.erro || 'Falha ao processar o feedback.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('processing-message').textContent = 'Erro ao comunicar com o servidor: ' + error.message;
+                });
+            }
+            
+            // Função para exibir resultados
+            function displayResults(data) {
+                document.getElementById('result-container').classList.remove('d-none');
+                document.getElementById('processing-message').textContent = 'Análise concluída!';
+                
+                // Preencher texto analisado
+                document.getElementById('analyzed-text').textContent = data.texto;
+                
+                // Preencher sentimento
+                const sentimentResult = document.getElementById('sentiment-result');
+                sentimentResult.textContent = data.sentimento.toUpperCase();
+                sentimentResult.className = 'badge';
+                
+                if (data.sentimento === 'positivo') {
+                    sentimentResult.classList.add('bg-success');
+                } else if (data.sentimento === 'negativo') {
+                    sentimentResult.classList.add('bg-danger');
+                } else {
+                    sentimentResult.classList.add('bg-warning');
+                }
+                
+                // Preencher confiança
+                const confidenceEl = document.getElementById('confidence-result');
+                const confidence = data.confianca || 0;
+                confidenceEl.textContent = data.confianca_formatada || `${(confidence * 100).toFixed(1)}%`;
+                
+                if (confidence > 0.7) {
+                    confidenceEl.className = 'confidence-high';
+                } else if (confidence > 0.4) {
+                    confidenceEl.className = 'confidence-medium';
+                } else {
+                    confidenceEl.className = 'confidence-low';
+                }
+                
+                // Preencher categoria
+                document.getElementById('category-result').textContent = (data.categoria_varejo || 'Geral').replace('_', ' ').toUpperCase();
+                
+                // Preencher informações de sarcasmo
+                const sarcasmDetected = data.sarcasmo?.detectado || false;
+                document.getElementById('sarcasm-detected').innerHTML = sarcasmDetected ? 
+                    '<span class="badge bg-danger">SIM</span>' : 
+                    '<span class="badge bg-success">NÃO</span>';
+                
+                const sarcasmLevel = data.sarcasmo?.nivel || 'baixo';
+                let levelBadgeClass = 'bg-success';
+                if (sarcasmLevel === 'medium' || sarcasmLevel === 'medio') {
+                    levelBadgeClass = 'bg-warning';
+                } else if (sarcasmLevel === 'high' || sarcasmLevel === 'alto') {
+                    levelBadgeClass = 'bg-danger';
+                }
+                
+                document.getElementById('sarcasm-level').innerHTML = 
+                    `<span class="badge ${levelBadgeClass}">${sarcasmLevel.toUpperCase()}</span>`;
+                
+                const probability = data.sarcasmo?.probabilidade || 0;
+                document.getElementById('sarcasm-probability').textContent = `${(probability * 100).toFixed(1)}%`;
+                
+                // Preencher aspectos
+                const aspectsContainer = document.getElementById('aspects-container');
+                aspectsContainer.innerHTML = '';
+                
+                if (data.aspectos && data.aspectos.aspectos_encontrados) {
+                    const aspectos = data.aspectos.aspectos_encontrados;
+                    
+                    if (Object.keys(aspectos).length === 0) {
+                        aspectsContainer.innerHTML = '<p>Nenhum aspecto específico identificado.</p>';
+                    } else {
+                        const table = document.createElement('table');
+                        table.className = 'table table-striped';
+                        table.innerHTML = `
+                            <thead>
+                                <tr>
+                                    <th>Aspecto</th>
+                                    <th>Menções</th>
+                                    <th>Sentimento</th>
+                                    <th>Palavras-chave</th>
+                                </tr>
+                            </thead>
+                            <tbody id="aspects-table-body"></tbody>
+                        `;
+                        aspectsContainer.appendChild(table);
+                        
+                        const tableBody = document.getElementById('aspects-table-body');
+                        for (const [aspecto, dados] of Object.entries(aspectos)) {
+                            const row = document.createElement('tr');
+                            
+                            // Determinar classe CSS para o sentimento
+                            let sentimentClass;
+                            if (dados.sentimento === 'positivo') {
+                                sentimentClass = 'bg-success';
+                            } else if (dados.sentimento === 'negativo') {
+                                sentimentClass = 'bg-danger';
+                            } else {
+                                sentimentClass = 'bg-warning';
+                            }
+                            
+                            row.innerHTML = `
+                                <td><strong>${aspecto.replace('_', ' ')}</strong></td>
+                                <td>${dados.mencoes}</td>
+                                <td><span class="badge ${sentimentClass}">${dados.sentimento.toUpperCase()}</span></td>
+                                <td>${dados.palavras_encontradas.join(', ')}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        }
+                    }
+                } else {
+                    aspectsContainer.innerHTML = '<p>Informações de aspectos não disponíveis.</p>';
+                }
+                
+                // Preencher detalhes técnicos
+                document.getElementById('technical-details').textContent = JSON.stringify(data, null, 2);
+            }
+        });
+    </script>
+</body>
+</html> 

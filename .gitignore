@@ -1,0 +1,44 @@
+# Ambientes virtuais
+.venv/
+venv/
+ENV/
+
+# Arquivos de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Logs
+*.log
+log.txt
+
+# Arquivos temporários
+*.bak
+*.tmp
+*.temp
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de configuração IDE
+.vscode/
+.idea/
+
+# Diretórios específicos do projeto
+models/deepseek-llm-7b-base/
+models/gpt_analyzer/
+models/**/tf_model.h5
+
+# Arquivos de modelo grandes - usar Git LFS para estes
+# models/sarcasm-detector/pytorch_model.bin
+# models/**/*.bin
+# models/**/*.h5
+# models/**/*.model
+
+# Arquivos de transcriçãoes temporárias
+transcricoes/*.txt
+
+# Arquivos de backup
+*.bak* 

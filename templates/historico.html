@@ -117,9 +117,15 @@
                                             </td>
                                             <td>
                                                 {% if analise.topicos %}
-                                                    {% for topico in analise.topicos.split(',') %}
-                                                        <span class="badge badge-info mr-1">{{ topico }}</span>
-                                                    {% endfor %}
+                                                    {% if analise.topicos is string %}
+                                                        {% for topico in analise.topicos.split(',') %}
+                                                            <span class="badge badge-info mr-1">{{ topico }}</span>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        {% for topico in analise.topicos %}
+                                                            <span class="badge badge-info mr-1">{{ topico }}</span>
+                                                        {% endfor %}
+                                                    {% endif %}
                                                 {% else %}
                                                     <span class="text-muted">Nenhum tópico detectado</span>
                                                 {% endif %}

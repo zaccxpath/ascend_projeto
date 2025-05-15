@@ -1,0 +1,62 @@
+{
+  "total": 9,
+  "positivo": 7,
+  "neutro": 1,
+  "negativo": 1,
+  "dados": [
+    {
+      "id": "2ea9a066-ba16-44da-9e9d-775ad51f122a",
+      "data": "2025-04-26 22:11:59",
+      "sentimento": "positivo",
+      "confianca": 0.9043108224868774
+    },
+    {
+      "id": "cfad4a27-c032-4301-adb1-dd519ab5aed7",
+      "data": "2025-04-26 22:17:13",
+      "sentimento": "positivo",
+      "confianca": 0.9043108224868774
+    },
+    {
+      "id": "9850f825-1ebb-4c67-a222-3c7a348e8a1a",
+      "data": "2025-04-26 22:23:29",
+      "sentimento": "positivo",
+      "confianca": 0.9043108224868774
+    },
+    {
+      "id": "78ebc65b-1c32-43cc-a9bc-b96948335f4f",
+      "data": "2025-04-26 22:31:51",
+      "sentimento": "positivo",
+      "confianca": 0.9043108224868774
+    },
+    {
+      "id": "0f1aebb3-1928-44d8-b785-1087d0a74aff",
+      "data": "2025-04-26 22:31:56",
+      "sentimento": "neutro",
+      "confianca": 0.47980228066444397
+    },
+    {
+      "id": "2c591ecf-9050-4a3a-8397-3069e4d4e047",
+      "data": "2025-04-26 22:32:02",
+      "sentimento": "positivo",
+      "confianca": 0.9402466416358948
+    },
+    {
+      "id": "8776342f-667e-4ecf-9ee4-fe9e50459db6",
+      "data": "2025-04-26 23:01:48",
+      "sentimento": "positivo",
+      "confianca": 0.9043108224868774
+    },
+    {
+      "id": "reg_2025-04-27T16-08-32-604935",
+      "data": "2025-04-27T16:08:32.604935",
+      "sentimento": "negativo",
+      "confianca": 0.6326444745063782
+    },
+    {
+      "id": "reg_2025-04-27T16-33-54-179408",
+      "data": "2025-04-27T16:33:54.179408",
+      "sentimento": "positivo",
+      "confianca": 0.9282078742980957
+    }
+  ]
+}

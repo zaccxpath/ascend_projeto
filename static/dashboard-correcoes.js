@@ -43,26 +43,74 @@ $(document).ready(function() {
             column: colno
         });
         
-        // Implementar recuperação para erros específicos, se necessário
         return true; // Previne que o erro apareça no console novamente
     };
     
-    // 4. Problema: Possíveis erros nos gráficos
-    // Solução: Verificar e recarregar gráficos com problemas
-    setTimeout(function() {
-        $('.chart-container').each(function() {
-            var container = $(this);
+    // 4. Verificar se os gráficos estão presentes e tentar recuperá-los
+    function verificarGraficos() {
+        console.log("Verificando status dos gráficos...");
+        
+        // Lista de IDs de gráficos principais
+        var graficosIds = [
+            'sentimento-pie', 
+            'sentimento-tempo', 
+            'palavras-top', 
+            'aspectos-radar', 
+            'sentimento-por-aspecto',
+            'comparacao-ponderacao',
+            'concordancia-pie'
+        ];
+        
+        // Cria um mapeamento entre IDs dos elementos HTML e chaves dos dados
+        var idParaChave = {
+            'sentimento-pie': 'sentimento_pie',
+            'sentimento-tempo': 'sentimento_tempo',
+            'palavras-top': 'palavras_top',
+            'aspectos-radar': 'aspectos_radar',
+            'sentimento-por-aspecto': 'sentimento_por_aspecto',
+            'comparacao-ponderacao': 'comparacao_ponderacao',
+            'concordancia-pie': 'concordancia_pie'
+        };
+        
+        // Verifica cada gráfico
+        graficosIds.forEach(function(id) {
+            var container = document.getElementById(id);
+            if (!container) {
+                console.log(`Container para gráfico ${id} não encontrado no DOM`);
+                return;
+            }
             
-            // Se o container estiver vazio ou com erro, tente recarregar
-            if (container.html().trim() === '' || container.find('.plotly-notifier').length > 0) {
-                var chartId = container.attr('id');
-                console.log('Tentando recuperar gráfico com problemas:', chartId);
+            // Obter a chave correspondente para acessar dados
+            var chave = idParaChave[id];
+            
+            // Verificar se o container está vazio
+            if (container.innerHTML.trim() === '' || $(container).find('.plotly-notifier').length > 0) {
+                console.log(`Tentando renderizar gráfico ${id} com chave ${chave}`);
                 
-                // Aqui poderíamos implementar uma lógica para recriar os gráficos
-                // usando dados de fallback ou tentando recarregar os dados originais
+                // Verificar se temos dados para o gráfico no objeto global do dashboard
+                if (window.dados_dashboard && window.dados_dashboard.graficos && window.dados_dashboard.graficos[chave]) {
+                    var dados = window.dados_dashboard.graficos[chave];
+                    console.log(`Dados encontrados para ${id}, tentando renderizar`);
+                    
+                    try {
+                        // Tornar os contêineres de gráficos visíveis
+                        container.style.height = '300px';
+                        container.style.display = 'block';
+                        
+                        // Renderizar o gráfico com os dados disponíveis
+                        Plotly.newPlot(id, dados.data, dados.layout, {responsive: true});
+                        console.log(`Gráfico ${id} renderizado com sucesso a partir dos dados JSON`);
+                    } catch (e) {
+                        console.error(`Erro ao renderizar gráfico ${id}:`, e);
+                    }
+                } else {
+                    console.log(`Nenhum dado encontrado para ${id} na chave ${chave}`);
+                }
+            } else {
+                console.log(`Gráfico ${id} já está renderizado`);
             }
         });
-    }, 1000);
+    }
     
     // 5. Problema: Problemas de interação com os botões de exportação e ampliação
     // Solução: Reforçar a implementação das funções
@@ -102,6 +150,22 @@ $(document).ready(function() {
             console.error('Erro ao ampliar gráfico:', e);
         }
     };
+    
+    // Adicionar dados do dashboard como variável global para acesso em funções de correção
+    if (typeof dados_json !== 'undefined') {
+        try {
+            // Verificar se já não está disponível globalmente (adicionado no template)
+            if (!window.dados_dashboard) {
+                window.dados_dashboard = JSON.parse(dados_json);
+                console.log("Dados do dashboard disponibilizados globalmente");
+            }
+            
+            // Chamar verificação de gráficos para garantir que todos estão renderizados
+            setTimeout(verificarGraficos, 500);
+        } catch (e) {
+            console.error("Erro ao analisar dados_json:", e);
+        }
+    }
     
     console.log('Correções aplicadas com sucesso');
 }); 

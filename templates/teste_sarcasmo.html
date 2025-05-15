@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Detecção de Sarcasmo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <style>
+        .resultado-card {
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: none;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .badge-sarcasmo {
+            font-size: 1em;
+            padding: 8px 12px;
+            margin-left: 10px;
+        }
+        .card-header {
+            font-weight: bold;
+        }
+        .example-btn {
+            margin: 5px;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <h1 class="mb-4 text-center">Detector de Sarcasmo</h1>
+        
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Insira um texto para análise
+            </div>
+            <div class="card-body">
+                <form id="sarcasmoForm">
+                    <div class="mb-3">
+                        <label for="textoInput" class="form-label">Texto:</label>
+                        <textarea class="form-control" id="textoInput" rows="4" placeholder="Digite um texto para analisar se contém sarcasmo..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Analisar</button>
+                </form>
+                
+                <div class="mt-3">
+                    <h6>Exemplos:</h6>
+                    <div id="exemplos">
+                        <button class="btn btn-sm btn-outline-secondary example-btn">Nossa, que atendimento incrível, esperei apenas 2 horas na fila!</button>
+                        <button class="btn btn-sm btn-outline-secondary example-btn">Este produto é simplesmente maravilhoso, recomendo a todos!</button>
+                        <button class="btn btn-sm btn-outline-secondary example-btn">Claro, com certeza vou comprar de novo nessa loja que sempre atrasa.</button>
+                        <button class="btn btn-sm btn-outline-secondary example-btn">O produto quebrou em 2 dias, qualidade excepcional!</button>
+                        <button class="btn btn-sm btn-outline-secondary example-btn">Adorei esperar 1 mês para receber um produto quebrado.</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loader" id="loader"></div>
+        
+        <div class="resultado-card" id="resultadoCard">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    Resultado da Análise
+                    <span id="badgeSarcasmo" class="badge"></span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Texto analisado:</h5>
+                    <p class="card-text" id="textoAnalisado"></p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-info text-white">Análise de Sentimento Original</div>
+                                <div class="card-body">
+                                    <p><strong>Sentimento:</strong> <span id="sentimentoOriginal"></span></p>
+                                    <p><strong>Confiança:</strong> <span id="confiancaOriginal"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-success text-white">Sentimento Final (Considerando Sarcasmo)</div>
+                                <div class="card-body">
+                                    <p><strong>Sentimento:</strong> <span id="sentimentoFinal"></span></p>
+                                    <p><strong>Confiança:</strong> <span id="confiancaFinal"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-3">
+                        <div class="card-header bg-secondary text-white">Detalhes da Detecção de Sarcasmo</div>
+                        <div class="card-body">
+                            <p><strong>Método utilizado:</strong> <span id="metodoSarcasmo"></span></p>
+                            <p><strong>Confiança da detecção:</strong> <span id="confiancaSarcasmo"></span></p>
+                            <div id="detalhesAdicionais"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('sarcasmoForm');
+            const loader = document.getElementById('loader');
+            const resultadoCard = document.getElementById('resultadoCard');
+            
+            // Exemplos
+            document.querySelectorAll('.example-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('textoInput').value = this.textContent;
+                });
+            });
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const texto = document.getElementById('textoInput').value.trim();
+                if (!texto) {
+                    alert('Por favor, digite um texto para análise.');
+                    return;
+                }
+                
+                // Mostrar loader e esconder resultado anterior
+                loader.style.display = 'block';
+                resultadoCard.style.display = 'none';
+                
+                // Enviar para API
+                fetch('/api/analisar-sarcasmo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ texto: texto })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loader.style.display = 'none';
+                    resultadoCard.style.display = 'block';
+                    
+                    // Preencher o card de resultado
+                    document.getElementById('textoAnalisado').textContent = data.analise.texto;
+                    
+                    // Sentimento original
+                    document.getElementById('sentimentoOriginal').textContent = 
+                        data.resultado.sentimento_original.charAt(0).toUpperCase() + 
+                        data.resultado.sentimento_original.slice(1);
+                    document.getElementById('confiancaOriginal').textContent = 
+                        (data.resultado.confianca_original * 100).toFixed(1) + '%';
+                    
+                    // Sentimento final
+                    document.getElementById('sentimentoFinal').textContent = 
+                        data.resultado.sentimento_final.charAt(0).toUpperCase() + 
+                        data.resultado.sentimento_final.slice(1);
+                    document.getElementById('confiancaFinal').textContent = 
+                        (data.resultado.confianca_ajustada * 100).toFixed(1) + '%';
+                    
+                    // Detecção de sarcasmo
+                    const badgeSarcasmo = document.getElementById('badgeSarcasmo');
+                    if (data.analise.sarcasmo && data.analise.sarcasmo.detectado) {
+                        badgeSarcasmo.textContent = 'Sarcasmo Detectado';
+                        badgeSarcasmo.className = 'badge bg-danger badge-sarcasmo';
+                    } else {
+                        badgeSarcasmo.textContent = 'Sem Sarcasmo';
+                        badgeSarcasmo.className = 'badge bg-success badge-sarcasmo';
+                    }
+                    
+                    // Método e confiança da detecção
+                    document.getElementById('metodoSarcasmo').textContent = 
+                        data.analise.sarcasmo && data.analise.sarcasmo.componentes ? 'Combinado (Regras, Contradição, Modelo)' : 'Não aplicável';
+                    document.getElementById('confiancaSarcasmo').textContent = 
+                        data.analise.sarcasmo ? (data.analise.sarcasmo.probabilidade * 100).toFixed(1) + '%' : '0%';
+                    
+                    // Detalhes adicionais
+                    const detalhesDiv = document.getElementById('detalhesAdicionais');
+                    detalhesDiv.innerHTML = '';
+                    
+                    if (data.analise.sarcasmo && data.analise.sarcasmo.componentes) {
+                        let detalhesHTML = '<div class="mt-3"><h6>Análises por método:</h6><ul>';
+                        
+                        const componentes = data.analise.sarcasmo.componentes;
+                        detalhesHTML += `<li><strong>Regras:</strong> ${(componentes.regras * 100).toFixed(1)}%</li>`;
+                        detalhesHTML += `<li><strong>Contradição:</strong> ${(componentes.contradicao * 100).toFixed(1)}%</li>`;
+                        
+                        if (componentes.modelo !== null && componentes.modelo !== undefined) {
+                            detalhesHTML += `<li><strong>Modelo ML:</strong> ${(componentes.modelo * 100).toFixed(1)}%</li>`;
+                        }
+                        
+                        detalhesHTML += '</ul></div>';
+                        
+                        // Evidências detectadas
+                        if (data.analise.sarcasmo.evidencias && data.analise.sarcasmo.evidencias.length > 0) {
+                            detalhesHTML += `<div class="mt-3"><h6>Evidências de sarcasmo:</h6>
+                                <ul>`;
+                            
+                            data.analise.sarcasmo.evidencias.forEach(evidencia => {
+                                detalhesHTML += `<li>${evidencia}</li>`;
+                            });
+                            
+                            detalhesHTML += `</ul></div>`;
+                        }
+                        
+                        detalhesDiv.innerHTML = detalhesHTML;
+                    }
+                })
+                .catch(error => {
+                    loader.style.display = 'none';
+                    alert('Erro ao analisar o texto: ' + error);
+                    console.error('Erro:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

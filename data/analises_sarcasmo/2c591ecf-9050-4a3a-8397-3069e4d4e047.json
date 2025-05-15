@@ -1,0 +1,27 @@
+{
+  "id": "2c591ecf-9050-4a3a-8397-3069e4d4e047",
+  "texto": "Este produto é simplesmente maravilhoso, recomendo a todos!",
+  "data": "2025-04-26 22:32:02",
+  "tipo": "analise_sarcasmo",
+  "sentimento": "positivo",
+  "sentimento_final": "positivo",
+  "analise": {
+    "sentimento": "positivo",
+    "confianca": 0.9402466416358948,
+    "modelo": "xlm-roberta",
+    "original": {
+      "label": "positive",
+      "score": 0.9402466416358948
+    },
+    "tokens_relevantes": {
+      "positivos": [],
+      "negativos": []
+    }
+  },
+  "sarcasmo": {
+    "detectado": false,
+    "confianca": 0,
+    "marcadores": [],
+    "metodo_deteccao": "regras"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "0f1aebb3-1928-44d8-b785-1087d0a74aff",
+  "texto": "Claro, com certeza vou comprar de novo nessa loja que sempre atrasa.",
+  "data": "2025-04-26 22:31:56",
+  "tipo": "analise_sarcasmo",
+  "sentimento": "neutro",
+  "sentimento_final": "neutro",
+  "analise": {
+    "sentimento": "neutro",
+    "confianca": 0.47980228066444397,
+    "modelo": "xlm-roberta",
+    "original": {
+      "label": "neutral",
+      "score": 0.47980228066444397
+    },
+    "tokens_relevantes": {
+      "positivos": [],
+      "negativos": []
+    }
+  },
+  "sarcasmo": {
+    "detectado": false,
+    "confianca": 0,
+    "marcadores": [],
+    "metodo_deteccao": "regras"
+  }
+}
